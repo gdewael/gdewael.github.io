@@ -1,7 +1,9 @@
 ---
 layout: 'base.njk'
 permalink: /
-title: 'My Eleventy Website'
+title: 'Gaetan De Waele'
 ---
 
-# Hello Worlds !
+# Gaetan De Waele
+
+Static Site WIP
