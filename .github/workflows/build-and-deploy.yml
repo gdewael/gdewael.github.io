@@ -25,9 +25,10 @@ jobs:
         run: npm ci
 
       - name: Run npm build
-        run: npm run build
+        run: npm run build-ghpages
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_dir: ./_site
