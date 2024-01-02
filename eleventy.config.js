@@ -39,7 +39,16 @@ module.exports = function(eleventyConfig) {
 	eleventyConfig.addPlugin(pluginNavigation);
 	eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
 	eleventyConfig.addPlugin(pluginIcons, {
-		sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
+		sources: [
+			{ name: 'lucide', path: 'node_modules/lucide-static/icons'},
+			{ name: 'custom', path: './public/img', default: true}
+		],
+		icon: {
+			attributes: {
+				width: "24",
+				height: "24"
+			},
+		}
 	});
 	eleventyConfig.addPlugin(pluginBundle);
 

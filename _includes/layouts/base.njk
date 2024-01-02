@@ -9,6 +9,7 @@
 		{#- Atom and JSON feeds included by default #}
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="{{ metadata.title }}">
 		<link rel="alternate" href="/feed/feed.json" type="application/json" title="{{ metadata.title }}">
+		<link rel="icon" type="image/svg+xml" href="/img/hat.svg">
 
 		{#- Uncomment this if you’d like folks to know that you used Eleventy to build your site!  #}
 		{#- <meta name="generator" content="{{ eleventy.generator }}"> #}
@@ -42,6 +43,7 @@
 			
 			{#- Read more about `eleventy-navigation` at https://www.11ty.dev/docs/plugins/navigation/ #}
 			<nav>
+				{% icon "custom:hat" %} 
 				<a href="/" class="home-link">{{ metadata.title }}</a>
 				<h2 class="visually-hidden">Top level navigation menu</h2>
 				<ul class="nav">
