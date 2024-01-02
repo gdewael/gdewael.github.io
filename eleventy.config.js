@@ -6,6 +6,7 @@ const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 const pluginBundle = require("@11ty/eleventy-plugin-bundle");
 const pluginNavigation = require("@11ty/eleventy-navigation");
 const { EleventyHtmlBasePlugin } = require("@11ty/eleventy");
+const pluginIcons = require('eleventy-plugin-icons');
 
 const pluginDrafts = require("./eleventy.config.drafts.js");
 const pluginImages = require("./eleventy.config.images.js");
@@ -17,6 +18,8 @@ module.exports = function(eleventyConfig) {
 		"./public/": "/",
 		"./node_modules/prismjs/themes/prism-okaidia.css": "/css/prism-okaidia.css"
 	});
+	eleventyConfig.addPassthroughCopy("node_modules/@fontsource/noto-sans/")
+	eleventyConfig.addPassthroughCopy("node_modules/@fontsource/noto-mono/files/noto-mono-latin-400-normal.woff2")
 
 	// Run Eleventy when these files change:
 	// https://www.11ty.dev/docs/watch-serve/#add-your-own-watch-targets
@@ -35,6 +38,9 @@ module.exports = function(eleventyConfig) {
 	});
 	eleventyConfig.addPlugin(pluginNavigation);
 	eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
+	eleventyConfig.addPlugin(pluginIcons, {
+		sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
+	});
 	eleventyConfig.addPlugin(pluginBundle);
 
 	// Filters

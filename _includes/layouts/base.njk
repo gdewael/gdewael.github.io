@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>{{ title or metadata.title }}</title>
+		<title>{{ title or metadata.description }}</title>
 		<meta name="description" content="{{ description or metadata.description }}">
 
 		{#- Atom and JSON feeds included by default #}
@@ -25,8 +25,10 @@
 		{%- css %}* { box-sizing: border-box; }{% endcss %}
 		{#- Add the contents of a file to the bundle #}
 		{%- css %}{% include "public/css/index.css" %}{% endcss %}
+
 		{#- Or add from node_modules #}
-		{# {%- css %}{% include "node_modules/prismjs/themes/prism-okaidia.css" %}{% endcss %} #}
+		{%- css %}{% include "node_modules/@fontsource/noto-sans/400.css" %}{% endcss %}
+		{%- css %}{% include "node_modules/@fontsource/noto-mono/400.css" %}{% endcss %}
 
 		{#- Render the CSS bundle using Inlined CSS (for the fastest site performance in production) #}
 		<style>{% getBundle "css" %}</style>
@@ -35,12 +37,12 @@
 	</head>
 	<body>
 		<a href="#skip" class="visually-hidden">Skip to main content</a>
-
+		
 		<header>
-			<a href="/" class="home-link">{{ metadata.title }}</a>
-
+			
 			{#- Read more about `eleventy-navigation` at https://www.11ty.dev/docs/plugins/navigation/ #}
 			<nav>
+				<a href="/" class="home-link">{{ metadata.title }}</a>
 				<h2 class="visually-hidden">Top level navigation menu</h2>
 				<ul class="nav">
 				{%- for entry in collections.all | eleventyNavigation %}
@@ -48,6 +50,11 @@
 				{%- endfor %}
 				</ul>
 			</nav>
+
+			<ul class="nav">
+				<li class="nav-item"><a href="https://github.com/gdewael/"> {% icon "lucide:github" %}</a></li>
+				<li class="nav-item"><a href="mailto:gaetandewaele@hotmail.com"> {% icon "lucide:mail" %}</a></li>
+			</ul>
 		</header>
 
 		<main id="skip">
