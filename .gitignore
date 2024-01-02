@@ -1,18 +1,3 @@
-# Dependencies
-/node_modules
-
-# Misc
-/public
-
-# Intellij
-/.idea
-
-# Sass
-.sass-cache/
-*.css.map
-*.sass.map
-*.scss.map
-
-# Visual Studio Code
-/.vscode
-.history
+_site/
+node_modules/
+package-lock.json
