@@ -3,35 +3,16 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Eleventy Base Blog v8</title>
-		<meta name="description" content="I am writing about my experiences as a naval navel-gazer.">
-		<link rel="alternate" href="/eleventy-test/feed/feed.xml" type="application/atom+xml" title="Eleventy Base Blog v8">
-		<link rel="alternate" href="/eleventy-test/feed/feed.json" type="application/json" title="Eleventy Base Blog v8">
-		
-		<style>.postlist { counter-reset: start-from 5 }
-/* Message Box */
-.message-box {
-	--color-message-box: #ffc;
-
-	display: block;
-	background-color: var(--color-message-box);
-	color: var(--color-gray-90);
-	padding: 1em 0.625em; /* 16px 10px /16 */
-}
-.message-box ol {
-	margin-top: 0;
-}
-
-@media (prefers-color-scheme: dark) {
-	.message-box {
-		--color-message-box: #082840;
-	}
-}
+		<title>Gaetan De Waele&#39;s personal site</title>
+		<meta name="description" content="Gaetan De Waele&#39;s personal site">
+		<link rel="alternate" href="/gdewael.github.io/feed/feed.xml" type="application/atom+xml" title="Gaetan De Waele">
+		<link rel="alternate" href="/gdewael.github.io/feed/feed.json" type="application/json" title="Gaetan De Waele">
+		<style>.postlist { counter-reset: start-from 1 }
 * { box-sizing: border-box; }
 /* Defaults */
 :root {
-	--font-family: -apple-system, system-ui, sans-serif;
-	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+	--font-family: Noto Sans;
+	--font-family-monospace: Noto Mono;
 }
 
 /* Theme colors */
@@ -129,11 +110,6 @@ main :first-child {
 header {
 	border-bottom: 1px dashed var(--color-gray-20);
 }
-header:after {
-	content: "";
-	display: table;
-	clear: both;
-}
 
 .links-nextprev {
 	list-style: none;
@@ -175,15 +151,15 @@ code {
 /* Header */
 header {
 	display: flex;
-	gap: 1em .5em;
-	flex-wrap: wrap;
-	align-items: center;
-	padding: 1em;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	justify-content: space-between;
+	align-items:center;
 }
 .home-link {
 	font-size: 1em; /* 16px /16 */
 	font-weight: 700;
-	margin-right: 2em;
+	margin-right: 1em;
 }
 .home-link:link:not(:hover) {
 	text-decoration: none;
@@ -191,10 +167,11 @@ header {
 
 /* Nav */
 .nav {
-	display: flex;
+	display: inline-block;
 	padding: 0;
 	margin: 0;
 	list-style: none;
+	text-align: left;
 }
 .nav-item {
 	display: inline-block;
@@ -297,65 +274,152 @@ a[href].header-anchor:focus,
 
 h2 + .header-anchor {
 	font-size: 1.5em;
+}
+/* noto-sans-cyrillic-ext-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-cyrillic-ext-400-normal.woff2) format('woff2'), url(./files/noto-sans-cyrillic-ext-400-normal.woff) format('woff');
+  unicode-range: U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+/* noto-sans-cyrillic-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-cyrillic-400-normal.woff2) format('woff2'), url(./files/noto-sans-cyrillic-400-normal.woff) format('woff');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+/* noto-sans-devanagari-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-devanagari-400-normal.woff2) format('woff2'), url(./files/noto-sans-devanagari-400-normal.woff) format('woff');
+  unicode-range: U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF;
+}
+
+/* noto-sans-greek-ext-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-greek-ext-400-normal.woff2) format('woff2'), url(./files/noto-sans-greek-ext-400-normal.woff) format('woff');
+  unicode-range: U+1F00-1FFF;
+}
+
+/* noto-sans-greek-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-greek-400-normal.woff2) format('woff2'), url(./files/noto-sans-greek-400-normal.woff) format('woff');
+  unicode-range: U+0370-03FF;
+}
+
+/* noto-sans-vietnamese-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-vietnamese-400-normal.woff2) format('woff2'), url(./files/noto-sans-vietnamese-400-normal.woff) format('woff');
+  unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
+}
+
+/* noto-sans-latin-ext-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-latin-ext-400-normal.woff2) format('woff2'), url(./files/noto-sans-latin-ext-400-normal.woff) format('woff');
+  unicode-range: U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+/* noto-sans-latin-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-latin-400-normal.woff2) format('woff2'), url(./files/noto-sans-latin-400-normal.woff) format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+/* noto-mono-latin-400-normal */
+@font-face {
+  font-family: 'Noto Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-mono-latin-400-normal.woff2) format('woff2'), url(./files/noto-mono-latin-400-normal.woff) format('woff');
 }</style>
 	</head>
 	<body>
 		<a href="#skip" class="visually-hidden">Skip to main content</a>
-
+		
 		<header>
-			<a href="/eleventy-test/" class="home-link">Eleventy Base Blog v8</a>
 			<nav>
+				<a href="/gdewael.github.io/" class="home-link">Gaetan De Waele</a>
 				<h2 class="visually-hidden">Top level navigation menu</h2>
 				<ul class="nav">
-					<li class="nav-item"><a href="/eleventy-test/" aria-current="page">Home</a></li>
-					<li class="nav-item"><a href="/eleventy-test/blog/">Archive</a></li>
-					<li class="nav-item"><a href="/eleventy-test/about/">About Me</a></li>
+					<li class="nav-item"><a href="/gdewael.github.io/" aria-current="page">Home</a></li>
+					<li class="nav-item"><a href="/gdewael.github.io/cv/">CV</a></li>
+					<li class="nav-item"><a href="/gdewael.github.io/blog/">Blog</a></li>
 				</ul>
 			</nav>
+
+			<ul class="nav">
+				<li class="nav-item"><a href="https://github.com/gdewael/"> 
+<!-- @license lucide-static v0.303.0 - ISC -->
+<svg class="icon icon-github" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
+  <path d="M9 18c-4.51 2-5-2-7-2"></path>
+</svg></a></li>
+				<li class="nav-item"><a href="mailto:gaetandewaele@hotmail.com"> 
+<!-- @license lucide-static v0.303.0 - ISC -->
+<svg class="icon icon-mail" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+</svg></a></li>
+			</ul>
 		</header>
 
 		<main id="skip">
-			<!-- Delete this message, it will also remove the component CSS from the bundle -->
-<div class="message-box">
-	<ol>
-		<li>Edit the <code>_data/metadata.js</code> with your blog’s information.</li>
-		<li>(Optional) Edit <code>eleventy.config.js</code> with your <a href="https://www.11ty.dev/docs/config/">configuration preferences</a>.</li>
-		<li>Delete this message from <code>_includes/layouts/home.njk</code>.</li>
-	</ol>
-	<p><em>This is an <a href="https://www.11ty.dev/">Eleventy project</a> created from the <a href="https://github.com/11ty/eleventy-base-blog"><code>eleventy-base-blog</code> repo</a>.</em></p>
-</div>
-<!-- Stop deleting -->
+			
+
+<img alt="A photo of me" loading="lazy" decoding="async" src="/gdewael.github.io/img/0YF6RXpKTS-300.png" width="300" height="324">
+
+<p>
+
+Hi, I'm a PhD student at the <a href="https://www.ugent.be/bw/damm/en">Department of Data analysis and Mathematical Modelling</a> at Ghent University.
+Currently, I am performing research on porting transformer neural networks to various biological data domains.
+
+</p><p>
+
+In my free time, I enjoy hiking/camping, cooking, and gardening. 
 
 
 
-<h1>Latest 3 Posts</h1>
+</p><h1>Latest 0 Posts</h1>
 
 
 
 
 <ol reversed="" class="postlist">
 
-	<li class="postlist-item">
-		<a href="/eleventy-test/blog/fourthpost/" class="postlist-link">This is my fourth post.</a>
-		<time class="postlist-date" datetime="2018-09-30">September 2018</time>
-	</li>
-
-	<li class="postlist-item">
-		<a href="/eleventy-test/blog/thirdpost/" class="postlist-link">This is my third post.</a>
-		<time class="postlist-date" datetime="2018-08-24">August 2018</time>
-	</li>
-
-	<li class="postlist-item">
-		<a href="/eleventy-test/blog/secondpost/" class="postlist-link">This is my second post with a much longer title.</a>
-		<time class="postlist-date" datetime="2018-07-04">July 2018</time>
-	</li>
-
 </ol>
 
 
 
-
-<p>1 more post can be found in <a href="/eleventy-test/blog/">the archive</a>.</p>
 
 
 
@@ -366,6 +430,6 @@ h2 + .header-anchor {
 
 		<footer></footer>
 
-		<!-- Current page: /eleventy-test/ -->
+		<!-- Current page: /gdewael.github.io/ -->
 	</body>
 </html>

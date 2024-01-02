@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Gaetan De Waele&#39;s personal site</title>
+		<meta name="description" content="Gaetan De Waele&#39;s personal site">
+		<link rel="alternate" href="/gdewael.github.io/feed/feed.xml" type="application/atom+xml" title="Gaetan De Waele">
+		<link rel="alternate" href="/gdewael.github.io/feed/feed.json" type="application/json" title="Gaetan De Waele">
+		<style>* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: Noto Sans;
+	--font-family-monospace: Noto Mono;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+code {
+	word-break: break-all;
+}
+
+/* Header */
+header {
+	display: flex;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	justify-content: space-between;
+	align-items:center;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 1em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	text-align: left;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+/* noto-sans-cyrillic-ext-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-cyrillic-ext-400-normal.woff2) format('woff2'), url(./files/noto-sans-cyrillic-ext-400-normal.woff) format('woff');
+  unicode-range: U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+/* noto-sans-cyrillic-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-cyrillic-400-normal.woff2) format('woff2'), url(./files/noto-sans-cyrillic-400-normal.woff) format('woff');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+/* noto-sans-devanagari-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-devanagari-400-normal.woff2) format('woff2'), url(./files/noto-sans-devanagari-400-normal.woff) format('woff');
+  unicode-range: U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF;
+}
+
+/* noto-sans-greek-ext-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-greek-ext-400-normal.woff2) format('woff2'), url(./files/noto-sans-greek-ext-400-normal.woff) format('woff');
+  unicode-range: U+1F00-1FFF;
+}
+
+/* noto-sans-greek-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-greek-400-normal.woff2) format('woff2'), url(./files/noto-sans-greek-400-normal.woff) format('woff');
+  unicode-range: U+0370-03FF;
+}
+
+/* noto-sans-vietnamese-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-vietnamese-400-normal.woff2) format('woff2'), url(./files/noto-sans-vietnamese-400-normal.woff) format('woff');
+  unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
+}
+
+/* noto-sans-latin-ext-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-latin-ext-400-normal.woff2) format('woff2'), url(./files/noto-sans-latin-ext-400-normal.woff) format('woff');
+  unicode-range: U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+/* noto-sans-latin-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-latin-400-normal.woff2) format('woff2'), url(./files/noto-sans-latin-400-normal.woff) format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+/* noto-mono-latin-400-normal */
+@font-face {
+  font-family: 'Noto Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-mono-latin-400-normal.woff2) format('woff2'), url(./files/noto-mono-latin-400-normal.woff) format('woff');
+}</style>
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+		
+		<header>
+			<nav>
+				<a href="/gdewael.github.io/" class="home-link">Gaetan De Waele</a>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/gdewael.github.io/">Home</a></li>
+					<li class="nav-item"><a href="/gdewael.github.io/cv/" aria-current="page">CV</a></li>
+					<li class="nav-item"><a href="/gdewael.github.io/blog/">Blog</a></li>
+				</ul>
+			</nav>
+
+			<ul class="nav">
+				<li class="nav-item"><a href="https://github.com/gdewael/"> 
+<!-- @license lucide-static v0.303.0 - ISC -->
+<svg class="icon icon-github" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
+  <path d="M9 18c-4.51 2-5-2-7-2"></path>
+</svg></a></li>
+				<li class="nav-item"><a href="mailto:gaetandewaele@hotmail.com"> 
+<!-- @license lucide-static v0.303.0 - ISC -->
+<svg class="icon icon-mail" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+</svg></a></li>
+			</ul>
+		</header>
+
+		<main id="skip">
+			<h1 id="cv" tabindex="-1">CV <a class="header-anchor" href="#cv">#</a></h1>
+<hr>
+<h2 id="education" tabindex="-1">Education <a class="header-anchor" href="#education">#</a></h2>
+<ul>
+<li><em>2020 - Current</em> : <strong>PhD in Bioscience Engineering</strong>, Ghent University
+<ul>
+<li>Research topic: Novel transformer networks for biological data modalities</li>
+</ul>
+</li>
+<li><em>2018 - 2020</em> : <strong>MSc in Bioinformatics (Bioscience Engineering)</strong>, Ghent University</li>
+<li><em>2015 - 2018</em> : <strong>BSc in Bioscience Engineering</strong>: Cell and Gene Biotechnology, Ghent University</li>
+<li><em>2009 - 2015</em> : <strong>Science-Mathematics</strong>, Leiepoort Campus Sint-Hendrik Deinze</li>
+</ul>
+<p>Additional courses:</p>
+<ul>
+<li><em>2023</em>: ACDL (Advanced Course on Data Science &amp; Machine Learning), 5-day course, Castiglione della Pescaia, Italy</li>
+<li><em>2023</em>: Causal Machine Learning, semester course at Ghent University</li>
+<li><em>2022</em>: Research to Market, 2-day course at Ghent University</li>
+</ul>
+<hr>
+<h2 id="academic-output" tabindex="-1">Academic output <a class="header-anchor" href="#academic-output">#</a></h2>
+<ul>
+<li><strong>Publications</strong>:
+<ul>
+<li><strong>De Waele, Gaetan</strong>, Jim Clauwaert, Gerben Menschaert, and Willem Waegeman. <a href="https://doi.org/10.1093/bioinformatics/btab746">&quot;CpG Transformer for imputation of single-cell methylomes.&quot;</a> Bioinformatics 38, no. 3 (2022): 597-603.</li>
+</ul>
+</li>
+</ul>
+<p>
+</p><ul>
+<li><strong>Preprints</strong>:
+<ul>
+<li><strong>De Waele, Gaetan</strong>, Gerben Menschaert, and Willem Waegeman. <a href="https://doi.org/10.1101/2023.09.28.559916">&quot;An antimicrobial drug recommender system using MALDI-TOF MS and dual-branch neural networks.&quot;</a> bioRxiv (2023): 2023-09.</li>
+</ul>
+</li>
+</ul>
+<p>
+</p><ul>
+<li><strong>Conference contributions</strong>:
+<ul>
+<li><strong>Oral</strong> at ISMB 2022, Madison, USA. &quot;CpG Transformer for imputation of single-cell methylomes&quot;</li>
+</ul>
+</li>
+</ul>
+<p>
+</p><ul>
+<li><strong>Software</strong>:
+<ul>
+<li><a href="https://github.com/gdewael/cpg-transformer">cpg-transformer</a>, code supporting my work on methylation (CpG) data imputation.</li>
+<li><a href="https://github.com/gdewael/h5torch">h5torch</a>, a simple utility that allows PyTorch Dataloading from HDF5 files.</li>
+<li><a href="https://github.com/gdewael/bio-attention">bio-attention</a>, definitions for transformers adapted to the work in my PhD.</li>
+<li><a href="https://github.com/gdewael/maldi-nn">maldi-nn</a>, code supporting my work on MALDI-TOF mass spectromety.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="teaching" tabindex="-1">Teaching <a class="header-anchor" href="#teaching">#</a></h2>
+<ul>
+<li><em>2020 - Current</em> : <strong>Teaching assistance</strong> for &quot;Machine learning for the Life Sciences&quot; course</li>
+<li><em>2023 - Current</em> : <strong>Tutor for Master thesis</strong> &quot;Novel neural networks for bacterial species prediction from MALDI-TOF data&quot; by Jorge Isaac Cueva Villavicencio</li>
+<li><em>2022 - 2023</em> : <strong>Tutor for Master thesis</strong> &quot;Two-Branch Neural Networks for Predicting Protein-DNA Interaction&quot; by Natan Tourne</li>
+<li><em>2022 - 2023</em> : <strong>Tutor for Master thesis</strong> &quot;Designing novel protein sequences using advanced generative models&quot; by Scout Van den Bergh</li>
+<li><em>2021 - 2022</em> : <strong>Tutor for Master thesis</strong> &quot;Detection of 5mC modification in Nanopore sequencing data using deep learning&quot; by Yari Van Laere</li>
+<li><em>2021 - 2022</em> : <strong>Teaching assistance</strong> for &quot;UGain Machine Learning&quot; course</li>
+<li><em>2021 - 2022</em> : <strong>Tutor for MSc Bioinformatics Design Project</strong> &quot;Automated benchmarking of optimized general
+purpose machine learning classifiers for single cell
+transcriptomics&quot; by Ruben Allaert, Seoyeon Oh, Natan Tourne, and Christopher Van Hessche</li>
+<li><em>2020 - 2021</em> : <strong>Tutor for MSc Bioinformatics Design Project</strong> &quot;Benchmarking study of ML methods for bacterial
+species identification from MALDI-TOF MS data&quot; by Kobe De Temmerman, Triana Forment, Ju Hyung Lee, Natalie Thomas, and Elien Martens</li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /gdewael.github.io/cv/ -->
+	</body>
+</html>
