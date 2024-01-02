@@ -2,9 +2,9 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:base="en">
 	<title>Gaetan De Waele</title>
 	<subtitle>Gaetan De Waele&#39;s personal site</subtitle>
-	<link href="https://gdewael.github.io/gdewael.github.io/feed/feed.xml" rel="self"/>
-	<link href="https://gdewael.github.io/gdewael.github.io/"/>
-	<updated>2024-01-02T21:12:25Z</updated>
+	<link href="https://gdewael.github.io/feed/feed.xml" rel="self"/>
+	<link href="https://gdewael.github.io/"/>
+	<updated>2024-01-02T21:17:28Z</updated>
 	<id>https://gdewael.github.io </id>
 	<author>
 		<name>Gaetan De Waele</name>

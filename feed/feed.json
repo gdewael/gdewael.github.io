@@ -2,8 +2,8 @@
 	"version": "https://jsonfeed.org/version/1.1",
 	"title": "Gaetan De Waele",
 	"language": "en",
-	"home_page_url": "https://gdewael.github.io/gdewael.github.io/",
-	"feed_url": "https://gdewael.github.io/gdewael.github.io/feed/feed.json",
+	"home_page_url": "https://gdewael.github.io/",
+	"feed_url": "https://gdewael.github.io/feed/feed.json",
 	"description": "Gaetan De Waele&#39;s personal site",
 	"author": {
 		"name": "Gaetan De Waele",
