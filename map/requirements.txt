@@ -1,0 +1,5 @@
+seaborn
+PIL
+gpxpy
+pandas
+folium

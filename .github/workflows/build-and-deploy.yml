@@ -15,6 +15,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12' # install the python version needed
+
+      - name: install python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./map/requirements.txt
+
+      - name: execute py script # run main.py
+        run: python ./map/generate_map.py --mapping_json_path map/mapping.json --img_folder_path map/img/ --gpx_folder_path map/tracks/ --output_file content/treks.html
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
