@@ -62,7 +62,7 @@ Currently, for every *.gpx* file, I'm tracking a short description of the trail,
 All of these attributes are used in the tooltips of the trails on the map.
 
 In order to add new tracks, I add a *.gpx* track, an image, and a new entry in the *mapping.json* file.
-In terms of ease-of-use, it's not quite up-to-par with sticking a sewing pin on a paper map, but let's hope it's stands the test of time.
+In terms of ease-of-use, it's not quite up-to-par with sticking a sewing pin on a paper map, but let's hope it stands the test of time.
 
 ## Mapping with Folium
 
@@ -178,9 +178,9 @@ The full script can be found [here](https://github.com/gdewael/gdewael.github.io
 ## Integration with GitHub Pages static site
 
 The script writes the map to a *.html* file, which can be readily used in my static site, using iframes, for example.
-I have the Eleventy building of this site hooked up to GitHub Actions, so why not do the same for this map?
+I have the Eleventy build of this site hooked up to GitHub Actions, so why not do the same for this map?
 This way, I don't have to run the python script manually every time I add a new trail.
-To to this, I add the following "steps" in [my GitHub Actions workflow file](https://github.com/gdewael/gdewael.github.io/blob/main/.github/workflows/build-and-deploy.yml):
+To do this, I add the following "steps" in [my GitHub Actions workflow file](https://github.com/gdewael/gdewael.github.io/blob/main/.github/workflows/build-and-deploy.yml):
 
 ```yml
 - name: setup python
@@ -198,7 +198,7 @@ To to this, I add the following "steps" in [my GitHub Actions workflow file](htt
 
 ```
 
-To add a new trail, I just create a new entry in the *metadata.json* file, along with adding an image and gpx file.
+To add a new trail, I just push a new entry in the *metadata.json* file, along with adding an image and gpx file, to GitHub.
 Upon doing so, the workflow triggers, automatically updating the map and the site along with it.
 
 I will be hosting a stand-alone page of the map [here](../../map).
