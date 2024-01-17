@@ -57,7 +57,7 @@ With my current workflow, the folder structure looks as follows:&lt;/p&gt;
 &lt;p&gt;Currently, for every &lt;em&gt;.gpx&lt;/em&gt; file, I&#39;m tracking a short description of the trail, a description of the date, an image file, and what kind of trail it corresponds to.
 All of these attributes are used in the tooltips of the trails on the map.&lt;/p&gt;
 &lt;p&gt;In order to add new tracks, I add a &lt;em&gt;.gpx&lt;/em&gt; track, an image, and a new entry in the &lt;em&gt;mapping.json&lt;/em&gt; file.
-In terms of ease-of-use, it&#39;s not quite up-to-par with sticking a sewing pin on a paper map, but let&#39;s hope it&#39;s stands the test of time.&lt;/p&gt;
+In terms of ease-of-use, it&#39;s not quite up-to-par with sticking a sewing pin on a paper map, but let&#39;s hope it stands the test of time.&lt;/p&gt;
 &lt;h2 id=&quot;mapping-with-folium&quot; tabindex=&quot;-1&quot;&gt;Mapping with Folium &lt;a class=&quot;header-anchor&quot; href=&quot;https://gdewael.github.io/blog/travelmapping/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;The script is kept deliberately simple.
 It creates a Folium map:&lt;/p&gt;
@@ -145,9 +145,9 @@ This is the quickest way I&#39;ve gotten it set-up, but I realize that this will
 &lt;p&gt;The full script can be found &lt;a href=&quot;https://github.com/gdewael/gdewael.github.io/blob/main/map/generate_map.py&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 id=&quot;integration-with-github-pages-static-site&quot; tabindex=&quot;-1&quot;&gt;Integration with GitHub Pages static site &lt;a class=&quot;header-anchor&quot; href=&quot;https://gdewael.github.io/blog/travelmapping/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;The script writes the map to a &lt;em&gt;.html&lt;/em&gt; file, which can be readily used in my static site, using iframes, for example.
-I have the Eleventy building of this site hooked up to GitHub Actions, so why not do the same for this map?
+I have the Eleventy build of this site hooked up to GitHub Actions, so why not do the same for this map?
 This way, I don&#39;t have to run the python script manually every time I add a new trail.
-To to this, I add the following &amp;quot;steps&amp;quot; in &lt;a href=&quot;https://github.com/gdewael/gdewael.github.io/blob/main/.github/workflows/build-and-deploy.yml&quot;&gt;my GitHub Actions workflow file&lt;/a&gt;:&lt;/p&gt;
+To do this, I add the following &amp;quot;steps&amp;quot; in &lt;a href=&quot;https://github.com/gdewael/gdewael.github.io/blob/main/.github/workflows/build-and-deploy.yml&quot;&gt;my GitHub Actions workflow file&lt;/a&gt;:&lt;/p&gt;
 &lt;pre class=&quot;language-yml&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-yml&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; setup python
 	&lt;span class=&quot;token key atrule&quot;&gt;uses&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; actions/setup&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;python@v4
 	&lt;span class=&quot;token key atrule&quot;&gt;with&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
@@ -161,7 +161,7 @@ To to this, I add the following &amp;quot;steps&amp;quot; in &lt;a href=&quot;ht
 &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; execute py script &lt;span class=&quot;token comment&quot;&gt;# run main.py&lt;/span&gt;
 	&lt;span class=&quot;token key atrule&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; python ./map/generate_map.py &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;mapping_json_path map/mapping.json &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;img_folder_path map/img/ &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;gpx_folder_path map/tracks/ &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;output_file content/treks.html
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;To add a new trail, I just create a new entry in the &lt;em&gt;metadata.json&lt;/em&gt; file, along with adding an image and gpx file.
+&lt;p&gt;To add a new trail, I just push a new entry in the &lt;em&gt;metadata.json&lt;/em&gt; file, along with adding an image and gpx file, to GitHub.
 Upon doing so, the workflow triggers, automatically updating the map and the site along with it.&lt;/p&gt;
 &lt;p&gt;I will be hosting a stand-alone page of the map &lt;a href=&quot;https://gdewael.github.io/map&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 </content>

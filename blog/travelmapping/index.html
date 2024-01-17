@@ -633,7 +633,7 @@ With my current workflow, the folder structure looks as follows:</p>
 <p>Currently, for every <em>.gpx</em> file, I'm tracking a short description of the trail, a description of the date, an image file, and what kind of trail it corresponds to.
 All of these attributes are used in the tooltips of the trails on the map.</p>
 <p>In order to add new tracks, I add a <em>.gpx</em> track, an image, and a new entry in the <em>mapping.json</em> file.
-In terms of ease-of-use, it's not quite up-to-par with sticking a sewing pin on a paper map, but let's hope it's stands the test of time.</p>
+In terms of ease-of-use, it's not quite up-to-par with sticking a sewing pin on a paper map, but let's hope it stands the test of time.</p>
 <h2 id="mapping-with-folium" tabindex="-1">Mapping with Folium <a class="header-anchor" href="#mapping-with-folium">#</a></h2>
 <p>The script is kept deliberately simple.
 It creates a Folium map:</p>
@@ -721,9 +721,9 @@ This is the quickest way I've gotten it set-up, but I realize that this will nee
 <p>The full script can be found <a href="https://github.com/gdewael/gdewael.github.io/blob/main/map/generate_map.py">here</a>.</p>
 <h2 id="integration-with-github-pages-static-site" tabindex="-1">Integration with GitHub Pages static site <a class="header-anchor" href="#integration-with-github-pages-static-site">#</a></h2>
 <p>The script writes the map to a <em>.html</em> file, which can be readily used in my static site, using iframes, for example.
-I have the Eleventy building of this site hooked up to GitHub Actions, so why not do the same for this map?
+I have the Eleventy build of this site hooked up to GitHub Actions, so why not do the same for this map?
 This way, I don't have to run the python script manually every time I add a new trail.
-To to this, I add the following &quot;steps&quot; in <a href="https://github.com/gdewael/gdewael.github.io/blob/main/.github/workflows/build-and-deploy.yml">my GitHub Actions workflow file</a>:</p>
+To do this, I add the following &quot;steps&quot; in <a href="https://github.com/gdewael/gdewael.github.io/blob/main/.github/workflows/build-and-deploy.yml">my GitHub Actions workflow file</a>:</p>
 <pre class="language-yml" tabindex="0"><code class="language-yml"><span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> setup python
 	<span class="token key atrule">uses</span><span class="token punctuation">:</span> actions/setup<span class="token punctuation">-</span>python@v4
 	<span class="token key atrule">with</span><span class="token punctuation">:</span>
@@ -737,7 +737,7 @@ To to this, I add the following &quot;steps&quot; in <a href="https://github.com
 <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> execute py script <span class="token comment"># run main.py</span>
 	<span class="token key atrule">run</span><span class="token punctuation">:</span> python ./map/generate_map.py <span class="token punctuation">-</span><span class="token punctuation">-</span>mapping_json_path map/mapping.json <span class="token punctuation">-</span><span class="token punctuation">-</span>img_folder_path map/img/ <span class="token punctuation">-</span><span class="token punctuation">-</span>gpx_folder_path map/tracks/ <span class="token punctuation">-</span><span class="token punctuation">-</span>output_file content/treks.html
 </code></pre>
-<p>To add a new trail, I just create a new entry in the <em>metadata.json</em> file, along with adding an image and gpx file.
+<p>To add a new trail, I just push a new entry in the <em>metadata.json</em> file, along with adding an image and gpx file, to GitHub.
 Upon doing so, the workflow triggers, automatically updating the map and the site along with it.</p>
 <p>I will be hosting a stand-alone page of the map <a href="../../map">here</a>.</p>
 
