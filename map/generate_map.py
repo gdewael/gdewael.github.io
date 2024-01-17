@@ -7,6 +7,7 @@ import gpxpy
 import pandas as pd
 import base64
 import folium
+from folium.plugins import Fullscreen
 import json
 import argparse
 
@@ -49,16 +50,23 @@ def main():
     parser.add_argument("--img_folder_path", type=str, default="./img")
     parser.add_argument("--gpx_folder_path", type=str, default="./tracks")
     parser.add_argument("--output_file", type=str, default="./treks.html")
-    
+
     args = parser.parse_args()
 
     m = folium.Map(location = [51.057056, 3.702139], zoom_start = 4, tiles="CartoDB dark_matter")
 
-    t = sns.color_palette().as_hex()
+    Fullscreen(
+        position="topright",
+        title="Expand me",
+        title_cancel="Exit me",
+        force_separate_button=True,
+    ).add_to(m)
+
+    colors = sns.color_palette().as_hex()
     color_mapping = {
-        "multi-day" : t[0],
-        "packraft" : t[1],
-        "day trip" : t[2],
+        "multi-day" : colors[0],
+        "packraft" : colors[1],
+        "day trip" : colors[2],
     }
 
     with open(args.mapping_json_path) as json_file:
@@ -66,12 +74,13 @@ def main():
 
     for ix, l in enumerate(os.listdir(args.gpx_folder_path)):
         if l.endswith(".gpx"):
+            name, date, pic, color = data[l]
 
             coords = load_gpx(os.path.join(args.gpx_folder_path, l))
 
-            tooltip = "%s (%s)" % (data[l][0], data[l][1])
-            popup = img_to_thumbnail_popup(os.path.join(args.img_folder_path, data[l][2]), tooltip)
-            
+            tooltip = "%s (%s)" % (name, date)
+            popup = img_to_thumbnail_popup(os.path.join(args.img_folder_path, pic), tooltip)
+
             # Outline
             folium.PolyLine(
                 coords, weight=8, color = "white",
@@ -79,8 +88,8 @@ def main():
 
             # Colored line
             folium.PolyLine(
-                coords, weight=6, color = color_mapping[data[l][-1]],
-                tooltip=tooltip, 
+                coords, weight=6, color = color_mapping[color],
+                tooltip=tooltip,
                 popup=popup,
             ).add_to(m)
 

@@ -16,8 +16,10 @@ module.exports = eleventyConfig => {
 		// Warning: Avif can be resource-intensive so take care!
 		let formats = ["auto"];
 		let file = relativeToInputPath(this.page.inputPath, src);
+		// console.log(`Here is the widths: ${widths.split(',')}`)
+		let widthsArray = widths.split(',')
 		let metadata = await eleventyImage(file, {
-			widths: widths || ["auto"],
+			widths: widthsArray || ["auto"],
 			formats,
 			outputDir: path.join(eleventyConfig.dir.output, "img"), // Advanced usage note: `eleventyConfig.dir` works here because we’re using addPlugin.
 		});
