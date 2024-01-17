@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Mapping travels with Folium</title>
+		<meta name="description" content="This post describes the process of making a hikes of treks using Folium">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Gaetan De Waele">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="Gaetan De Waele">
+		<link rel="icon" type="image/svg+xml" href="/img/hat.svg">
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: Noto Sans;
+	--font-family-monospace: Noto Mono;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 50em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+code {
+	word-break: break-all;
+}
+
+/* Header */
+header {
+	display: flex;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	justify-content: space-between;
+	align-items:center;
+	vertical-align: center;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 1em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+	align-items:center;
+	vertical-align: center;
+	list-style: none;
+	text-align: left;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+/* noto-sans-cyrillic-ext-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-cyrillic-ext-400-normal.woff2) format('woff2'), url(./files/noto-sans-cyrillic-ext-400-normal.woff) format('woff');
+  unicode-range: U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+/* noto-sans-cyrillic-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-cyrillic-400-normal.woff2) format('woff2'), url(./files/noto-sans-cyrillic-400-normal.woff) format('woff');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+/* noto-sans-devanagari-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-devanagari-400-normal.woff2) format('woff2'), url(./files/noto-sans-devanagari-400-normal.woff) format('woff');
+  unicode-range: U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF;
+}
+
+/* noto-sans-greek-ext-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-greek-ext-400-normal.woff2) format('woff2'), url(./files/noto-sans-greek-ext-400-normal.woff) format('woff');
+  unicode-range: U+1F00-1FFF;
+}
+
+/* noto-sans-greek-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-greek-400-normal.woff2) format('woff2'), url(./files/noto-sans-greek-400-normal.woff) format('woff');
+  unicode-range: U+0370-03FF;
+}
+
+/* noto-sans-vietnamese-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-vietnamese-400-normal.woff2) format('woff2'), url(./files/noto-sans-vietnamese-400-normal.woff) format('woff');
+  unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
+}
+
+/* noto-sans-latin-ext-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-latin-ext-400-normal.woff2) format('woff2'), url(./files/noto-sans-latin-ext-400-normal.woff) format('woff');
+  unicode-range: U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+/* noto-sans-latin-400-normal */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-sans-latin-400-normal.woff2) format('woff2'), url(./files/noto-sans-latin-400-normal.woff) format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+/* noto-mono-latin-400-normal */
+@font-face {
+  font-family: 'Noto Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/noto-mono-latin-400-normal.woff2) format('woff2'), url(./files/noto-mono-latin-400-normal.woff) format('woff');
+}</style>
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+		
+		<header>
+			<nav>
+				
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="20" height="20" viewBox="0 0 77.439438 77.439438" version="1.1" id="svg1" inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)" sodipodi:docname="hat.svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" class="icon icon-hat">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#000000" borderopacity="0.25" inkscape:showpageshadow="2" inkscape:pageopacity="0.0" inkscape:pagecheckerboard="0" inkscape:deskcolor="#d1d1d1" inkscape:document-units="mm" inkscape:zoom="2.0739057" inkscape:cx="237.47463" inkscape:cy="132.60005" inkscape:window-width="2560" inkscape:window-height="1368" inkscape:window-x="1920" inkscape:window-y="0" inkscape:window-maximized="1" inkscape:current-layer="layer1"/>
+  <defs id="defs1"/>
+  <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1" transform="translate(-77.001892,-62.918175)">
+    <path id="path3-1" style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:10.9;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 122.63291,95.104214 c 4.35829,-0.0307 1.23541,-3.355455 0.068,-3.163635 -1.82123,4.57e-4 -3.13825,2.367575 -0.068,3.163635 z m -0.84104,-1.547261 c -4.88827,1.00436 -9.68792,1.43259 -15.08229,4.1243 -3.17775,1.58565 -5.21669,4.017047 -6.66109,7.027487 -2.895669,6.03513 -3.822499,10.7677 -5.052919,16.11736 3.7547,-3.11766 8.883439,-2.65201 13.031759,-2.43189 1.37016,0.0727 2.66991,0.14611 3.9455,0.22117 l -17.058389,2.24586 c -1.87261,1.20374 -7.47014,5.12228 -9.8702,6.79287 7.90813,-4.99918 15.663089,0.031 17.607189,0.88676 14.0674,6.96324 16.3447,3.67734 18.22163,2.97915 8.44552,-6.31531 9.42949,-6.91498 13.69374,-10.39213 l -10.84534,-1.60559 c 5.05126,0.52064 9.67142,1.22011 14.6079,2.29702 4.83811,1.05546 7.42063,1.87077 10.32598,3.47627 -1.17176,-6.66163 -2.37931,-12.85535 -4.52168,-19.33318 -1.12037,-3.3876 -3.34946,-6.869507 -7.94784,-8.947267 -3.64219,-1.64574 -8.45055,-2.95923 -14.39395,-3.45819 z M 85.044241,127.65411 c -0.35786,0.22622 -0.71588,0.46567 -1.07384,0.73432 -0.20019,0.15024 0.25725,-0.16593 1.07384,-0.73432 z m 30.379539,-8.8191 c 0.71053,0.0476 1.41977,0.0972 2.10581,0.14779 z m -18.491379,7.321 -13.10049,2.38951 c -1.12134,1.34858 -1.61922,4.30097 0.54054,5.36143 0.0378,0.0185 0.88811,0.40847 1.45469,0.15297 2.4856,-1.12102 9.65381,-6.69846 11.10526,-7.90391 z" sodipodi:nodetypes="ccccsccscccccccscssccsccccccccc"/>
+    <path id="path3" style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#4d3f31;fill-opacity:1;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 83.847724,128.54687 c -1.121343,1.34858 -1.6193,4.30096 0.540462,5.36143 0.03781,0.0185 0.888093,0.40827 1.454674,0.15277 2.485612,-1.12102 9.654069,-6.69826 11.105523,-7.90372" sodipodi:nodetypes="cccc"/>
+    <path id="path2" style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#4d3f31;fill-opacity:1;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 94.930218,120.86255 c -2.509748,1.6133 -11.732562,8.11874 -10.943989,7.52692 8.268398,-6.20533 16.649021,-0.7417 18.681101,0.15277 14.06741,6.96324 16.34479,3.6772 18.22172,2.97901 8.44553,-6.31532 9.42904,-6.91511 13.69329,-10.39226 l -12.19824,-1.80545 -10.28403,-0.72169" sodipodi:nodetypes="csccc"/>
+    <path id="path1-9" style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:0.185379;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 91.693843,122.71148 c 5.15372,-1.4747 9.669177,0.95829 11.514587,1.76598 10.3028,4.95676 13.91052,4.57355 16.09087,3.23097 4.7197,-3.04441 8.40084,-6.56122 9.46609,-7.51745" sodipodi:nodetypes="cccc"/>
+    <path id="path1-2-3" style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:0.185379;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 94.679451,120.98227 c 5.187365,-1.03831 8.794389,0.85758 10.639799,1.66528 6.33266,3.04339 10.7815,3.33153 12.96185,1.98895 4.46206,-3.58105 4.9995,-4.05569 6.06475,-5.01191" sodipodi:nodetypes="cccc"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#c6bea8;fill-opacity:1;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;marker:none;enable-background:accumulate" d="m 95.011133,120.82735 c 1.230421,-5.34966 2.157428,-10.0821 5.053097,-16.11724 1.4444,-3.01044 3.4831,-5.441784 6.66086,-7.027432 5.39437,-2.691709 10.19443,-3.12043 15.0827,-4.124785 5.94341,0.498954 10.75143,1.81247 14.39362,3.458207 4.59838,2.07776 6.82755,5.55968 7.94792,8.94728 2.14238,6.47784 3.34992,12.67193 4.52168,19.33357 -2.90536,-1.60551 -5.48773,-2.42114 -10.32585,-3.4766 -9.48854,-2.06995 -17.76729,-2.75969 -30.30206,-3.42482 -4.14833,-0.22012 -9.27727,-0.68584 -13.031967,2.43182 z" id="path2996-6" inkscape:connector-curvature="0" sodipodi:nodetypes="csscsscssc"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 134.42148,116.24371 c -0.59725,-7.23738 -0.36149,-9.38535 -6.3719,-17.270974" id="path2998-0" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 104.84175,113.15253 c 3.81931,-8.97552 6.14952,-10.61969 11.99844,-14.578569" id="path2998-2-6" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 122.85878,91.12025 c 1.79082,0.05581 3.05999,1.86526 -0.28343,1.061477 -3.0296,0.388829 -1.91733,-1.13007 0.28343,-1.061477 z" id="path2998-5-2" inkscape:connector-curvature="0" sodipodi:nodetypes="scs"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#b7b1a3;fill-opacity:1;stroke:#000000;stroke-width:0.602073;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 110.57279,98.128112 c 0.0814,0.140626 -0.52279,0.602395 -0.63468,0.409059 -0.0832,-0.143711 0.55799,-0.541557 0.63468,-0.409059 z" id="path2998-5-3-5-8" inkscape:connector-curvature="0" sodipodi:nodetypes="scs"/>
+  </g>
+</svg> 
+				<a href="/" class="home-link">Gaetan De Waele</a>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/cv/">CV</a></li>
+					<li class="nav-item"><a href="/blog/">Blog</a></li>
+				</ul>
+			</nav>
+
+			<ul class="nav">
+				<li class="nav-item"><a href="https://github.com/gdewael/"> 
+<!-- @license lucide-static v0.303.0 - ISC -->
+<svg class="icon icon-github" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+  <path d="M9 18c-4.51 2-5-2-7-2"/>
+</svg></a></li>
+				<li class="nav-item"><a href="mailto:gaetandewaele@hotmail.com"> 
+<!-- @license lucide-static v0.303.0 - ISC -->
+<svg class="icon icon-mail" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="20" height="16" x="2" y="4" rx="2"/>
+  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+</svg></a></li>
+			</ul>
+		</header>
+
+		<main id="skip">
+			
+<h1>Mapping travels with Folium</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2024-01-18">18 January 2024</time></li>
+	<li><i>Tags:</i></li>
+	<li><a href="/tags/personal/" class="post-tag">personal</a></li>
+</ul>
+
+<p>There's a map at my grandparents' home containing sewing pins that indicate the places they have traveled.
+As a kid, I used to gawk at this map and wonder how these places looked like.
+As an adult, I have come to appreciate this map as a testament to a life well-spent traveling together.</p>
+<p style="text-align: center;">
+  <img alt="A map" loading="lazy" decoding="async" src="/img/G7zcRw7hlV-700.png" width="700" height="393">
+  <br>
+  <i>The map at my grandparents' house. Every sewing pin indicates a visited place.</i>
+</p>
+<p>As an homage to their map (and to satisfy my own love for staring at maps and tracking data), I have decided to similarly start tracking travels.
+Instead of using sewing pins, I will be hosting it on this site.
+Currently, the map contains only multi-day trails.
+I may expand this with dots for places visited using more-conventional means of travel, but for the time being, I'm content with how it looks.
+The result is:</p>
+<p style="text-align: center;">
+  <iframe src="../../treks/index.html" width="700" height="450"></iframe>
+  <br>
+  <i>A map containing my multi-day trails</i>
+</p>
+<p>As the map itself is very much a work in progress, the remainder of this page will outline how I created the map, and how I integrated it with this site.</p>
+<h2 id="overview-and-file-prerequisites" tabindex="-1">Overview and file prerequisites <a class="header-anchor" href="#overview-and-file-prerequisites">#</a></h2>
+<p>The setup consists of a python file that (1) reads <em>.gpx</em> and <em>.jpg</em> files, and (2) renders it on a Leaflet.js map using <a href="https://python-visualization.github.io/folium/latest/">folium</a>.
+To get <em>.gpx</em> files for hikes, I use the <a href="https://www.outdooractive.com/en/">Outdooractive</a> platform, which is also my mobile app during hikes.
+With my current workflow, the folder structure looks as follows:</p>
+<pre class="language-bash" tabindex="0"><code class="language-bash">map/
+├── generate_map.py
+├── mapping.json
+├── requirements.txt
+├── img
+│   └── *.jpg
+└── tracks
+    └── *.gpx</code></pre>
+<p>In a <em>mapping.json</em> file, I can record some metadata for every track:</p>
+<pre class="language-bash" tabindex="0"><code class="language-bash"><span class="token operator">></span> <span class="token function">cat</span> mapping.json
+<span class="token punctuation">{</span>
+    <span class="token string">"camino_primitivo.gpx"</span><span class="token builtin class-name">:</span> <span class="token punctuation">[</span><span class="token string">"12-day Camino Primitivo"</span>, <span class="token string">"August 2015"</span>, <span class="token string">"camino.JPG"</span>, <span class="token string">"multi-day"</span><span class="token punctuation">]</span>,
+    <span class="token punctuation">..</span>.
+    <span class="token string">"tarn.gpx"</span><span class="token builtin class-name">:</span> <span class="token punctuation">[</span><span class="token string">"2-day Packrafting of the Tarn"</span>, <span class="token string">"July 2023"</span>, <span class="token string">"tarn.jpg"</span>, <span class="token string">"packraft"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span></code></pre>
+<p>Currently, for every <em>.gpx</em> file, I'm tracking a short description of the trail, a description of the date, an image file, and what kind of trail it corresponds to.
+All of these attributes are used in the tooltips of the trails on the map.</p>
+<p>In order to add new tracks, I add a <em>.gpx</em> track, an image, and a new entry in the <em>mapping.json</em> file.
+In terms of ease-of-use, it's not quite up-to-par with sticking a sewing pin on a paper map, but let's hope it's stands the test of time.</p>
+<h2 id="mapping-with-folium" tabindex="-1">Mapping with Folium <a class="header-anchor" href="#mapping-with-folium">#</a></h2>
+<p>The script is kept deliberately simple.
+It creates a Folium map:</p>
+<details><summary>Code for folium map</summary>
+<pre class="language-python" tabindex="0"><code class="language-python">m <span class="token operator">=</span> folium<span class="token punctuation">.</span>Map<span class="token punctuation">(</span>location <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">51.057056</span><span class="token punctuation">,</span> <span class="token number">3.702139</span><span class="token punctuation">]</span><span class="token punctuation">,</span> zoom_start <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">,</span> tiles<span class="token operator">=</span><span class="token string">"CartoDB dark_matter"</span><span class="token punctuation">)</span>
+
+Fullscreen<span class="token punctuation">(</span>
+		position<span class="token operator">=</span><span class="token string">"topright"</span><span class="token punctuation">,</span>
+		title<span class="token operator">=</span><span class="token string">"Expand me"</span><span class="token punctuation">,</span>
+		title_cancel<span class="token operator">=</span><span class="token string">"Exit me"</span><span class="token punctuation">,</span>
+		force_separate_button<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span><span class="token punctuation">.</span>add_to<span class="token punctuation">(</span>m<span class="token punctuation">)</span></code></pre>
+</details>
+<p>After which it loops over the entries in the metadata <em>mapping.json</em> files:</p>
+<details><summary>Code for adding tracks to map</summary>
+<pre class="language-python" tabindex="0"><code class="language-python">colors <span class="token operator">=</span> sns<span class="token punctuation">.</span>color_palette<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>as_hex<span class="token punctuation">(</span><span class="token punctuation">)</span>
+color_mapping <span class="token operator">=</span> <span class="token punctuation">{</span>
+		<span class="token string">"multi-day"</span> <span class="token punctuation">:</span> colors<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+		<span class="token string">"packraft"</span> <span class="token punctuation">:</span> colors<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+		<span class="token string">"day trip"</span> <span class="token punctuation">:</span> colors<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span>mapping_json_path<span class="token punctuation">)</span> <span class="token keyword">as</span> json_file<span class="token punctuation">:</span>
+		data <span class="token operator">=</span> json<span class="token punctuation">.</span>load<span class="token punctuation">(</span>json_file<span class="token punctuation">)</span>
+
+
+<span class="token keyword">for</span> ix<span class="token punctuation">,</span> l <span class="token keyword">in</span> <span class="token builtin">enumerate</span><span class="token punctuation">(</span>os<span class="token punctuation">.</span>listdir<span class="token punctuation">(</span>gpx_folder_path<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+		<span class="token keyword">if</span> l<span class="token punctuation">.</span>endswith<span class="token punctuation">(</span><span class="token string">".gpx"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+				name<span class="token punctuation">,</span> date<span class="token punctuation">,</span> pic<span class="token punctuation">,</span> color <span class="token operator">=</span> data<span class="token punctuation">[</span>l<span class="token punctuation">]</span>
+
+				coords <span class="token operator">=</span> load_gpx<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>gpx_folder_path<span class="token punctuation">,</span> l<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+				tooltip <span class="token operator">=</span> <span class="token string">"%s (%s)"</span> <span class="token operator">%</span> <span class="token punctuation">(</span>name<span class="token punctuation">,</span> date<span class="token punctuation">)</span>
+				popup <span class="token operator">=</span> img_to_thumbnail_popup<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>img_folder_path<span class="token punctuation">,</span> pic<span class="token punctuation">)</span><span class="token punctuation">,</span> tooltip<span class="token punctuation">)</span>
+
+				<span class="token comment"># Outline</span>
+				folium<span class="token punctuation">.</span>PolyLine<span class="token punctuation">(</span>
+						coords<span class="token punctuation">,</span> weight<span class="token operator">=</span><span class="token number">8</span><span class="token punctuation">,</span> color <span class="token operator">=</span> <span class="token string">"white"</span><span class="token punctuation">,</span>
+				<span class="token punctuation">)</span><span class="token punctuation">.</span>add_to<span class="token punctuation">(</span>m<span class="token punctuation">)</span>
+
+				<span class="token comment"># Colored line</span>
+				folium<span class="token punctuation">.</span>PolyLine<span class="token punctuation">(</span>
+						coords<span class="token punctuation">,</span> weight<span class="token operator">=</span><span class="token number">6</span><span class="token punctuation">,</span> color <span class="token operator">=</span> color_mapping<span class="token punctuation">[</span>color<span class="token punctuation">]</span><span class="token punctuation">,</span>
+						tooltip<span class="token operator">=</span>tooltip<span class="token punctuation">,</span>
+						popup<span class="token operator">=</span>popup<span class="token punctuation">,</span>
+				<span class="token punctuation">)</span><span class="token punctuation">.</span>add_to<span class="token punctuation">(</span>m<span class="token punctuation">)</span>
+
+m<span class="token punctuation">.</span>save<span class="token punctuation">(</span>output_file<span class="token punctuation">)</span></code></pre>
+</details>
+<p>This piece of code makes use of a function <em>load_gpx</em>, that loads <em>.gpx</em> files to pandas DataFrames:</p>
+<details><summary>Code for reading gpx files</summary>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">def</span> <span class="token function">load_gpx</span><span class="token punctuation">(</span>file_path<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span>file_path<span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+            gpx <span class="token operator">=</span> gpxpy<span class="token punctuation">.</span>parse<span class="token punctuation">(</span>f<span class="token punctuation">)</span>
+
+    <span class="token comment"># Convert to a dataframe one point at a time.</span>
+    points <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> segment <span class="token keyword">in</span> gpx<span class="token punctuation">.</span>tracks<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>segments<span class="token punctuation">:</span>
+        <span class="token keyword">for</span> p <span class="token keyword">in</span> segment<span class="token punctuation">.</span>points<span class="token punctuation">:</span>
+            points<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span>
+                <span class="token string">'time'</span><span class="token punctuation">:</span> p<span class="token punctuation">.</span>time<span class="token punctuation">,</span>
+                <span class="token string">'latitude'</span><span class="token punctuation">:</span> p<span class="token punctuation">.</span>latitude<span class="token punctuation">,</span>
+                <span class="token string">'longitude'</span><span class="token punctuation">:</span> p<span class="token punctuation">.</span>longitude<span class="token punctuation">,</span>
+                <span class="token string">'elevation'</span><span class="token punctuation">:</span> p<span class="token punctuation">.</span>elevation<span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    df <span class="token operator">=</span> pd<span class="token punctuation">.</span>DataFrame<span class="token punctuation">.</span>from_records<span class="token punctuation">(</span>points<span class="token punctuation">)</span>
+    coords <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> j<span class="token punctuation">)</span> <span class="token keyword">for</span> i<span class="token punctuation">,</span> j <span class="token keyword">in</span> <span class="token builtin">zip</span><span class="token punctuation">(</span>df<span class="token punctuation">[</span><span class="token string">"latitude"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> df<span class="token punctuation">[</span><span class="token string">"longitude"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+    <span class="token keyword">return</span> coords</code></pre>
+</details>
+<p>In addition, pictures are processed using a <em>img_to_thumbnail_popup</em> function.
+Of note here is that the images in the popups are programmed to be Base64 encoded and served inline.
+This is the quickest way I've gotten it set-up, but I realize that this will need to be changed in the future for scalability reasons.</p>
+<details><summary>Code for creating thumbnails</summary>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">def</span> <span class="token function">img_to_thumbnail_popup</span><span class="token punctuation">(</span>file_path<span class="token punctuation">,</span> tooltip<span class="token punctuation">,</span> size <span class="token operator">=</span> <span class="token number">300</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token builtin">buffer</span> <span class="token operator">=</span> io<span class="token punctuation">.</span>BytesIO<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    img <span class="token operator">=</span> Image<span class="token punctuation">.</span><span class="token builtin">open</span><span class="token punctuation">(</span>file_path<span class="token punctuation">)</span>
+    img<span class="token punctuation">.</span>thumbnail<span class="token punctuation">(</span><span class="token punctuation">(</span>size<span class="token punctuation">,</span> size<span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token comment"># x, y</span>
+    img<span class="token punctuation">.</span>save<span class="token punctuation">(</span><span class="token builtin">buffer</span><span class="token punctuation">,</span> <span class="token builtin">format</span><span class="token operator">=</span><span class="token string">"jpeg"</span><span class="token punctuation">)</span>
+    encoded <span class="token operator">=</span> base64<span class="token punctuation">.</span>b64encode<span class="token punctuation">(</span><span class="token builtin">buffer</span><span class="token punctuation">.</span>getvalue<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    html <span class="token operator">=</span> <span class="token string">'%s&lt;p>&lt;img src="data:image/png;base64,%s">'</span> <span class="token operator">%</span> <span class="token punctuation">(</span>tooltip<span class="token punctuation">,</span> encoded<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token string">'UTF-8'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    iframe <span class="token operator">=</span> branca<span class="token punctuation">.</span>element<span class="token punctuation">.</span>IFrame<span class="token punctuation">(</span>html<span class="token operator">=</span>html<span class="token punctuation">,</span> width<span class="token operator">=</span><span class="token number">325</span><span class="token punctuation">,</span> height <span class="token operator">=</span> <span class="token number">325</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> folium<span class="token punctuation">.</span>Popup<span class="token punctuation">(</span>iframe<span class="token punctuation">,</span> max_width<span class="token operator">=</span><span class="token number">325</span><span class="token punctuation">)</span></code></pre>
+</details>
+<p>The full script can be found <a href="https://github.com/gdewael/gdewael.github.io/blob/main/map/generate_map.py">here</a>.</p>
+<h2 id="integration-with-github-pages-static-site" tabindex="-1">Integration with GitHub Pages static site <a class="header-anchor" href="#integration-with-github-pages-static-site">#</a></h2>
+<p>The script writes the map to a <em>.html</em> file, which can be readily used in my static site, using iframes, for example.
+I have the Eleventy building of this site hooked up to GitHub Actions, so why not do the same for this map?
+This way, I don't have to run the python script manually every time I add a new trail.
+To to this, I add the following &quot;steps&quot; in <a href="https://github.com/gdewael/gdewael.github.io/blob/main/.github/workflows/build-and-deploy.yml">my GitHub Actions workflow file</a>:</p>
+<pre class="language-yml" tabindex="0"><code class="language-yml"><span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> setup python
+	<span class="token key atrule">uses</span><span class="token punctuation">:</span> actions/setup<span class="token punctuation">-</span>python@v4
+	<span class="token key atrule">with</span><span class="token punctuation">:</span>
+		<span class="token key atrule">python-version</span><span class="token punctuation">:</span> <span class="token string">'3.12'</span> <span class="token comment"># install the python version needed</span>
+
+<span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> install python packages
+  <span class="token key atrule">run</span><span class="token punctuation">:</span> <span class="token punctuation">|</span><span class="token scalar string">
+		python -m pip install --upgrade pip
+		pip install -r ./map/requirements.txt</span>
+
+<span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> execute py script <span class="token comment"># run main.py</span>
+	<span class="token key atrule">run</span><span class="token punctuation">:</span> python ./map/generate_map.py <span class="token punctuation">-</span><span class="token punctuation">-</span>mapping_json_path map/mapping.json <span class="token punctuation">-</span><span class="token punctuation">-</span>img_folder_path map/img/ <span class="token punctuation">-</span><span class="token punctuation">-</span>gpx_folder_path map/tracks/ <span class="token punctuation">-</span><span class="token punctuation">-</span>output_file content/treks.html
+</code></pre>
+<p>To add a new trail, I just create a new entry in the <em>metadata.json</em> file, along with adding an image and gpx file.
+Upon doing so, the workflow triggers, automatically updating the map and the site along with it.</p>
+<p>I will be hosting a stand-alone page of the map <a href="../../map">here</a>.</p>
+
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/travelmapping/ -->
+	</body>
+</html>

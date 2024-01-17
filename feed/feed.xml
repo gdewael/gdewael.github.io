@@ -4,10 +4,166 @@
 	<subtitle>Gaetan De Waele&#39;s personal site</subtitle>
 	<link href="https://gdewael.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://gdewael.github.io/"/>
-	<updated>2024-01-15T15:04:41Z</updated>
+	<updated>2024-01-18T00:00:00Z</updated>
 	<id>https://gdewael.github.io </id>
 	<author>
 		<name>Gaetan De Waele</name>
 		<email>gaetandewaele@hotmail.com</email>
 	</author>
+	
+	<entry>
+		<title>Mapping travels with Folium</title>
+		<link href="https://gdewael.github.io/blog/travelmapping/"/>
+		<updated>2024-01-18T00:00:00Z</updated>
+		<id>https://gdewael.github.io/blog/travelmapping/</id>
+		<content type="html">&lt;p&gt;There&#39;s a map at my grandparents&#39; home containing sewing pins that indicate the places they have traveled.
+As a kid, I used to gawk at this map and wonder how these places looked like.
+As an adult, I have come to appreciate this map as a testament to a life well-spent traveling together.&lt;/p&gt;
+&lt;p style=&quot;text-align: center;&quot;&gt;
+  &lt;img alt=&quot;A map&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://gdewael.github.io/img/G7zcRw7hlV-700.png&quot; width=&quot;700&quot; height=&quot;393&quot;&gt;
+  &lt;br&gt;
+  &lt;i&gt;The map at my grandparents&#39; house. Every sewing pin indicates a visited place.&lt;/i&gt;
+&lt;/p&gt;
+&lt;p&gt;As an homage to their map (and to satisfy my own love for staring at maps and tracking data), I have decided to similarly start tracking travels.
+Instead of using sewing pins, I will be hosting it on this site.
+Currently, the map contains only multi-day trails.
+I may expand this with dots for places visited using more-conventional means of travel, but for the time being, I&#39;m content with how it looks.
+The result is:&lt;/p&gt;
+&lt;p style=&quot;text-align: center;&quot;&gt;
+  &lt;iframe src=&quot;https://gdewael.github.io/treks/index.html&quot; width=&quot;700&quot; height=&quot;450&quot;&gt;&lt;/iframe&gt;
+  &lt;br&gt;
+  &lt;i&gt;A map containing my multi-day trails&lt;/i&gt;
+&lt;/p&gt;
+&lt;p&gt;As the map itself is very much a work in progress, the remainder of this page will outline how I created the map, and how I integrated it with this site.&lt;/p&gt;
+&lt;h2 id=&quot;overview-and-file-prerequisites&quot; tabindex=&quot;-1&quot;&gt;Overview and file prerequisites &lt;a class=&quot;header-anchor&quot; href=&quot;https://gdewael.github.io/blog/travelmapping/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;The setup consists of a python file that (1) reads &lt;em&gt;.gpx&lt;/em&gt; and &lt;em&gt;.jpg&lt;/em&gt; files, and (2) renders it on a Leaflet.js map using &lt;a href=&quot;https://python-visualization.github.io/folium/latest/&quot;&gt;folium&lt;/a&gt;.
+To get &lt;em&gt;.gpx&lt;/em&gt; files for hikes, I use the &lt;a href=&quot;https://www.outdooractive.com/en/&quot;&gt;Outdooractive&lt;/a&gt; platform, which is also my mobile app during hikes.
+With my current workflow, the folder structure looks as follows:&lt;/p&gt;
+&lt;pre class=&quot;language-bash&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-bash&quot;&gt;map/
+├── generate_map.py
+├── mapping.json
+├── requirements.txt
+├── img
+│   └── *.jpg
+└── tracks
+    └── *.gpx&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In a &lt;em&gt;mapping.json&lt;/em&gt; file, I can record some metadata for every track:&lt;/p&gt;
+&lt;pre class=&quot;language-bash&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-bash&quot;&gt;&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;cat&lt;/span&gt; mapping.json
+&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token string&quot;&gt;&quot;camino_primitivo.gpx&quot;&lt;/span&gt;&lt;span class=&quot;token builtin class-name&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;12-day Camino Primitivo&quot;&lt;/span&gt;, &lt;span class=&quot;token string&quot;&gt;&quot;August 2015&quot;&lt;/span&gt;, &lt;span class=&quot;token string&quot;&gt;&quot;camino.JPG&quot;&lt;/span&gt;, &lt;span class=&quot;token string&quot;&gt;&quot;multi-day&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;,
+    &lt;span class=&quot;token punctuation&quot;&gt;..&lt;/span&gt;.
+    &lt;span class=&quot;token string&quot;&gt;&quot;tarn.gpx&quot;&lt;/span&gt;&lt;span class=&quot;token builtin class-name&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;2-day Packrafting of the Tarn&quot;&lt;/span&gt;, &lt;span class=&quot;token string&quot;&gt;&quot;July 2023&quot;&lt;/span&gt;, &lt;span class=&quot;token string&quot;&gt;&quot;tarn.jpg&quot;&lt;/span&gt;, &lt;span class=&quot;token string&quot;&gt;&quot;packraft&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Currently, for every &lt;em&gt;.gpx&lt;/em&gt; file, I&#39;m tracking a short description of the trail, a description of the date, an image file, and what kind of trail it corresponds to.
+All of these attributes are used in the tooltips of the trails on the map.&lt;/p&gt;
+&lt;p&gt;In order to add new tracks, I add a &lt;em&gt;.gpx&lt;/em&gt; track, an image, and a new entry in the &lt;em&gt;mapping.json&lt;/em&gt; file.
+In terms of ease-of-use, it&#39;s not quite up-to-par with sticking a sewing pin on a paper map, but let&#39;s hope it&#39;s stands the test of time.&lt;/p&gt;
+&lt;h2 id=&quot;mapping-with-folium&quot; tabindex=&quot;-1&quot;&gt;Mapping with Folium &lt;a class=&quot;header-anchor&quot; href=&quot;https://gdewael.github.io/blog/travelmapping/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;The script is kept deliberately simple.
+It creates a Folium map:&lt;/p&gt;
+&lt;details&gt;&lt;summary&gt;Code for folium map&lt;/summary&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;m &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; folium&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Map&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;location &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;51.057056&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;3.702139&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; zoom_start &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; tiles&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;CartoDB dark_matter&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+Fullscreen&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+		position&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;topright&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+		title&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;Expand me&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+		title_cancel&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;Exit me&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+		force_separate_button&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;add_to&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/details&gt;
+&lt;p&gt;After which it loops over the entries in the metadata &lt;em&gt;mapping.json&lt;/em&gt; files:&lt;/p&gt;
+&lt;details&gt;&lt;summary&gt;Code for adding tracks to map&lt;/summary&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;colors &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; sns&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;color_palette&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;as_hex&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+color_mapping &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;token string&quot;&gt;&quot;multi-day&quot;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; colors&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+		&lt;span class=&quot;token string&quot;&gt;&quot;packraft&quot;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; colors&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+		&lt;span class=&quot;token string&quot;&gt;&quot;day trip&quot;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; colors&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;mapping_json_path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;as&lt;/span&gt; json_file&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+		data &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; json&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;load&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;json_file&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+
+&lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; ix&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; l &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;enumerate&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;os&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;listdir&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;gpx_folder_path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+		&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; l&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;endswith&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;.gpx&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+				name&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; date&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; pic&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; color &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; data&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;l&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+
+				coords &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; load_gpx&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;os&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;join&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;gpx_folder_path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; l&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+				tooltip &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;%s (%s)&quot;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; date&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+				popup &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; img_to_thumbnail_popup&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;os&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;join&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;img_folder_path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; pic&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; tooltip&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+				&lt;span class=&quot;token comment&quot;&gt;# Outline&lt;/span&gt;
+				folium&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;PolyLine&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+						coords&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; weight&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; color &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;white&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+				&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;add_to&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+				&lt;span class=&quot;token comment&quot;&gt;# Colored line&lt;/span&gt;
+				folium&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;PolyLine&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+						coords&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; weight&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; color &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; color_mapping&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;color&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+						tooltip&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;tooltip&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+						popup&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;popup&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+				&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;add_to&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;save&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;output_file&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/details&gt;
+&lt;p&gt;This piece of code makes use of a function &lt;em&gt;load_gpx&lt;/em&gt;, that loads &lt;em&gt;.gpx&lt;/em&gt; files to pandas DataFrames:&lt;/p&gt;
+&lt;details&gt;&lt;summary&gt;Code for reading gpx files&lt;/summary&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;load_gpx&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;file_path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;file_path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;as&lt;/span&gt; f&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            gpx &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; gpxpy&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;parse&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;f&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;token comment&quot;&gt;# Convert to a dataframe one point at a time.&lt;/span&gt;
+    points &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; segment &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; gpx&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;tracks&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;segments&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; p &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; segment&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;points&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            points&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&#39;time&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;time&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&#39;latitude&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;latitude&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&#39;longitude&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;longitude&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&#39;elevation&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;elevation&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    df &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; pd&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;DataFrame&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;from_records&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;points&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    coords &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;i&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; j&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; i&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; j &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;zip&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;df&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;latitude&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; df&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;longitude&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; coords&lt;/code&gt;&lt;/pre&gt;
+&lt;/details&gt;
+&lt;p&gt;In addition, pictures are processed using a &lt;em&gt;img_to_thumbnail_popup&lt;/em&gt; function.
+Of note here is that the images in the popups are programmed to be Base64 encoded and served inline.
+This is the quickest way I&#39;ve gotten it set-up, but I realize that this will need to be changed in the future for scalability reasons.&lt;/p&gt;
+&lt;details&gt;&lt;summary&gt;Code for creating thumbnails&lt;/summary&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;img_to_thumbnail_popup&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;file_path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; tooltip&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; size &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;300&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token builtin&quot;&gt;buffer&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; io&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;BytesIO&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    img &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; Image&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;file_path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    img&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;thumbnail&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;size&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; size&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;token comment&quot;&gt;# x, y&lt;/span&gt;
+    img&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;save&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;buffer&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;jpeg&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    encoded &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; base64&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;b64encode&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;buffer&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;getvalue&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+    html &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;%s&amp;lt;p&gt;&amp;lt;img src=&quot;data:image/png;base64,%s&quot;&gt;&#39;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;tooltip&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; encoded&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;decode&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&#39;UTF-8&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    iframe &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; branca&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;element&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;IFrame&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;html&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;html&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; width&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;325&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; height &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;325&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; folium&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Popup&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;iframe&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; max_width&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;325&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/details&gt;
+&lt;p&gt;The full script can be found &lt;a href=&quot;https://github.com/gdewael/gdewael.github.io/blob/main/map/generate_map.py&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;integration-with-github-pages-static-site&quot; tabindex=&quot;-1&quot;&gt;Integration with GitHub Pages static site &lt;a class=&quot;header-anchor&quot; href=&quot;https://gdewael.github.io/blog/travelmapping/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;The script writes the map to a &lt;em&gt;.html&lt;/em&gt; file, which can be readily used in my static site, using iframes, for example.
+I have the Eleventy building of this site hooked up to GitHub Actions, so why not do the same for this map?
+This way, I don&#39;t have to run the python script manually every time I add a new trail.
+To to this, I add the following &amp;quot;steps&amp;quot; in &lt;a href=&quot;https://github.com/gdewael/gdewael.github.io/blob/main/.github/workflows/build-and-deploy.yml&quot;&gt;my GitHub Actions workflow file&lt;/a&gt;:&lt;/p&gt;
+&lt;pre class=&quot;language-yml&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-yml&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; setup python
+	&lt;span class=&quot;token key atrule&quot;&gt;uses&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; actions/setup&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;python@v4
+	&lt;span class=&quot;token key atrule&quot;&gt;with&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+		&lt;span class=&quot;token key atrule&quot;&gt;python-version&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;3.12&#39;&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;# install the python version needed&lt;/span&gt;
+
+&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; install python packages
+  &lt;span class=&quot;token key atrule&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;token scalar string&quot;&gt;
+		python -m pip install --upgrade pip
+		pip install -r ./map/requirements.txt&lt;/span&gt;
+
+&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; execute py script &lt;span class=&quot;token comment&quot;&gt;# run main.py&lt;/span&gt;
+	&lt;span class=&quot;token key atrule&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; python ./map/generate_map.py &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;mapping_json_path map/mapping.json &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;img_folder_path map/img/ &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;gpx_folder_path map/tracks/ &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;output_file content/treks.html
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To add a new trail, I just create a new entry in the &lt;em&gt;metadata.json&lt;/em&gt; file, along with adding an image and gpx file.
+Upon doing so, the workflow triggers, automatically updating the map and the site along with it.&lt;/p&gt;
+&lt;p&gt;I will be hosting a stand-alone page of the map &lt;a href=&quot;https://gdewael.github.io/map&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+</content>
+	</entry>
 </feed>
