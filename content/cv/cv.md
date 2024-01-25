@@ -30,6 +30,7 @@ Additional courses:
 
 - **Preprints**:
     - **De Waele, Gaetan**, Gerben Menschaert, and Willem Waegeman. ["An antimicrobial drug recommender system using MALDI-TOF MS and dual-branch neural networks."](https://doi.org/10.1101/2023.09.28.559916 ) bioRxiv (2023): 2023-09.
+    - **De Waele, Gaetan**, Gerben Menschaert, Peter Vandamme, and Willem Waegeman. ["Pre-trained Maldi Transformers improve MALDI-TOF MS-based prediction."](https://www.biorxiv.org/content/10.1101/2024.01.18.576189v1) bioRxiv (2024): 2024-01.
 
 <p>
 
