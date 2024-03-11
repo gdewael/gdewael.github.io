@@ -35,7 +35,9 @@ Additional courses:
 <p>
 
 - **Conference contributions**:
-    - **Oral** at ISMB 2022, Madison, USA. "CpG Transformer for imputation of single-cell methylomes"
+    - **Oral** at ISMB22, Madison, USA. "CpG Transformer for imputation of single-cell methylomes"
+    - **Oral** at AAAI24 LLMs4Bio workshop, Vancouver, Canada. "Pre-trained Maldi Transformers improve MALDI-TOF MS-based prediction"
+    - **Poster** at ABLS24, Leuven, Belgium. "Transformers for MALDI-TOF MS-based antimicrobial drug recommendation"
 
 <p>
 
