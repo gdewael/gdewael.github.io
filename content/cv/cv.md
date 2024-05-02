@@ -25,11 +25,11 @@ Additional courses:
 ## Academic output
 - **Publications**:
     - **De Waele, Gaetan**, Jim Clauwaert, Gerben Menschaert, and Willem Waegeman. ["CpG Transformer for imputation of single-cell methylomes."](https://doi.org/10.1093/bioinformatics/btab746) Bioinformatics 38, no. 3 (2022): 597-603.
+    - **De Waele, Gaetan**, Gerben Menschaert, and Willem Waegeman.["An antimicrobial drug recommender system using MALDI-TOF MS and dual-branch neural networks"](https://doi.org/10.7554/eLife.93242.1.sa2) eLife 13:RP93242 (2024)
 
 <p>
 
 - **Preprints**:
-    - **De Waele, Gaetan**, Gerben Menschaert, and Willem Waegeman. ["An antimicrobial drug recommender system using MALDI-TOF MS and dual-branch neural networks."](https://doi.org/10.1101/2023.09.28.559916 ) bioRxiv (2023): 2023-09.
     - **De Waele, Gaetan**, Gerben Menschaert, Peter Vandamme, and Willem Waegeman. ["Pre-trained Maldi Transformers improve MALDI-TOF MS-based prediction."](https://www.biorxiv.org/content/10.1101/2024.01.18.576189v1) bioRxiv (2024): 2024-01.
 
 <p>
