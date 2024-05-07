@@ -17,7 +17,7 @@ module.exports = eleventyConfig => {
 		let formats = ["auto"];
 		let file = relativeToInputPath(this.page.inputPath, src);
 		// console.log(`Here is the widths: ${widths.split(',')}`)
-		let widthsArray = widths.split(',')
+		let widthsArray = widths.split(',');
 		let metadata = await eleventyImage(file, {
 			widths: widthsArray || ["auto"],
 			formats,

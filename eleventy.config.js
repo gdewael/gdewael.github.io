@@ -1,5 +1,7 @@
 const { DateTime } = require("luxon");
 const markdownItAnchor = require("markdown-it-anchor");
+const markdownItFootnote = require("markdown-it-footnote");
+const markdownItMathjax3 = require("markdown-it-mathjax3");
 
 const pluginRss = require("@11ty/eleventy-plugin-rss");
 const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
@@ -19,7 +21,8 @@ module.exports = function(eleventyConfig) {
 		"./node_modules/prismjs/themes/prism-okaidia.css": "/css/prism-okaidia.css"
 	});
 	eleventyConfig.addPassthroughCopy("node_modules/@fontsource/noto-sans/")
-	eleventyConfig.addPassthroughCopy("node_modules/@fontsource/noto-mono/files/noto-mono-latin-400-normal.woff2")
+	eleventyConfig.addPassthroughCopy("node_modules/@fontsource/noto-mono/")
+	eleventyConfig.addPassthroughCopy("node_modules/@fontsource/noto-serif/")
 
 	// Run Eleventy when these files change:
 	// https://www.11ty.dev/docs/watch-serve/#add-your-own-watch-targets
@@ -104,7 +107,15 @@ module.exports = function(eleventyConfig) {
 			}),
 			level: [1,2,3,4],
 			slugify: eleventyConfig.getFilter("slugify")
-		});
+		}).use(markdownItFootnote).use(markdownItMathjax3);
+	});
+
+	eleventyConfig.amendLibrary('md', (md) => {
+		md.renderer.rules.footnote_block_open = () => (
+			'<hr><h2 class="mt-3">References and footnotes</h2>\n' +
+			'<section class="footnotes">\n' +
+			'<ol class="footnotes-list">\n'
+		);
 	});
 
 	// Features to make your build faster (when you need them)
@@ -123,6 +134,7 @@ module.exports = function(eleventyConfig) {
 			"njk",
 			"html",
 			"liquid",
+			"svg",
 		],
 
 		// Pre-process *.md files with: (default: `liquid`)
