@@ -1,6 +1,23 @@
 /* Defaults */
+
+@font-face {
+	font-family: 'Noto Serif';
+	font-style: normal;
+	font-display: swap;
+	font-weight: 400;
+	src: url(../../node_modules/@fontsource/noto-serif/files/noto-serif-latin-400-normal.woff2) format('woff2'), url(../../node_modules/@fontsource/noto-serif/files/noto-serif-latin-400-normal.woff) format('woff');
+	}
+
+	@font-face {
+		font-family: 'Noto Mono';
+		font-style: normal;
+		font-display: swap;
+		font-weight: 400;
+		src: url(../../node_modules/@fontsource/noto-mono/files/noto-mono-latin-400-normal.woff2) format('woff2'), url(../../node_modules/@fontsource/noto-mono/files/noto-mono-latin-400-normal.woff) format('woff');
+		}
+
 :root {
-	--font-family: Noto Sans;
+	--font-family: Noto Serif;
 	--font-family-monospace: Noto Mono;
 }
 
