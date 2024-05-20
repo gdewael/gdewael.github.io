@@ -4,7 +4,7 @@
 	<subtitle>Gaetan De Waele&#39;s personal site</subtitle>
 	<link href="https://gdewael.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://gdewael.github.io/"/>
-	<updated>2024-05-01T00:00:00Z</updated>
+	<updated>2024-05-20T00:00:00Z</updated>
 	<id>https://gdewael.github.io </id>
 	<author>
 		<name>Gaetan De Waele</name>
@@ -14,7 +14,7 @@
 	<entry>
 		<title>Visualizing equivariances in transformer neural networks</title>
 		<link href="https://gdewael.github.io/blog/equivariance/"/>
-		<updated>2024-05-01T00:00:00Z</updated>
+		<updated>2024-05-20T00:00:00Z</updated>
 		<id>https://gdewael.github.io/blog/equivariance/</id>
 		<content type="html">&lt;p&gt;Transformers neural networks have become the dominant architecture within many subfields of deep learning.
 Their success is partly owed due to the fact that self-attention is a very generic operation in terms of the geometric priors it uses&lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://gdewael.github.io/blog/equivariance/&quot; id=&quot;fnref1&quot;&gt;[1]&lt;/a&gt;&lt;/sup&gt;.
