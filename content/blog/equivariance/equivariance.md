@@ -1,7 +1,7 @@
 ---
 title: Visualizing equivariances in transformer neural networks
 description: This blogpost visualizes geometric priors in transformer neural networks
-date: 2024-04-31
+date: 2024-05-20
 tags:
   - research
 ---
