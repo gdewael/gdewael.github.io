@@ -486,7 +486,7 @@ var X = [[1, 2], [0, 2], [1, 1]];
 const Wq = [ [1,-1],[0,1] ];
 const Wk = [ [1,0],[1,-1] ];
 const Wv = [ [1,0],[1,1] ];
-const order = [0,1,2];
+var order = [0,1,2];
 
 
 var [Q,K,V,QK,A,Z] = compute(X, 0, Wq, Wk, Wv, false);
@@ -533,6 +533,7 @@ drawAttn(Qrot,Krot,V,QK,A,Z,order,&#39;./attn.svg&#39;, &#39;#vis-attn-rel&#39;,
 d3.select(&quot;#slider&quot;).on(&quot;change&quot;, function(d){
     location = this.value
     displayParagraph(&#39;paragraph2&#39;, location);
+    order = [0,1,2];
     var [Q,K,V,Qrot,Krot,QK,A,Z] = computeRotary(X, 0, Wq, Wk, Wv, +location);
     drawRotation(Q,K,Qrot,Krot,+location,order,&#39;./rotary.svg&#39;, &#39;#vis-rot-rel&#39;);
     drawAttn(Qrot,Krot,V,QK,A,Z,order,&#39;./attn.svg&#39;, &#39;#vis-attn-rel&#39;, true, true);
