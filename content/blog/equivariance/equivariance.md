@@ -45,7 +45,7 @@ Via this equation, one sees that, intuitively, self-attention is nothing more th
   <i><small>(Hover over the elements highlighted in blue to see computation)</small></i>
 </p>
 
-For the purpose of the visualizations, I've conveneniently ignored the multiple heads that are typically used with self-attention.
+For the purpose of the visualizations, I've conveniently ignored the multiple heads that are typically used with self-attention.
 
 ## Permutation equivariance in self-attention
 
