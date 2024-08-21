@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Hacking &quot;vanilla&quot; FlashAttention for variable-length inputs</title>
+		<meta name="description" content="This blogpost presents a small python utility workaround to enable FlashAttention for variable sequence lenghts.">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Gaetan De Waele">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="Gaetan De Waele">
+		<link rel="icon" type="image/svg+xml" href="/img/hat.svg">
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+* { box-sizing: border-box; }
+/* Defaults */
+
+@font-face {
+	font-family: 'Noto Serif';
+	font-style: normal;
+	font-display: swap;
+	font-weight: 400;
+	src: url(../../node_modules/@fontsource/noto-serif/files/noto-serif-latin-400-normal.woff2) format('woff2'), url(../../node_modules/@fontsource/noto-serif/files/noto-serif-latin-400-normal.woff) format('woff');
+	}
+
+	@font-face {
+		font-family: 'Noto Mono';
+		font-style: normal;
+		font-display: swap;
+		font-weight: 400;
+		src: url(../../node_modules/@fontsource/noto-mono/files/noto-mono-latin-400-normal.woff2) format('woff2'), url(../../node_modules/@fontsource/noto-mono/files/noto-mono-latin-400-normal.woff) format('woff');
+		}
+
+:root {
+	--font-family: Noto Serif;
+	--font-family-monospace: Noto Mono;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 50em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre[class*="language-"] {
+	font-size: 0.8em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+code {
+	word-break: break-all;
+}
+
+/* Header */
+header {
+	display: flex;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	justify-content: space-between;
+	align-items:center;
+	vertical-align: center;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 1em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+	align-items:center;
+	vertical-align: center;
+	list-style: none;
+	text-align: left;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}</style>
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+		
+		<header>
+			<nav>
+				
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="20" height="20" viewBox="0 0 77.439438 77.439438" version="1.1" id="svg1" inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)" sodipodi:docname="hat.svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" class="icon icon-hat">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#000000" borderopacity="0.25" inkscape:showpageshadow="2" inkscape:pageopacity="0.0" inkscape:pagecheckerboard="0" inkscape:deskcolor="#d1d1d1" inkscape:document-units="mm" inkscape:zoom="2.0739057" inkscape:cx="237.47463" inkscape:cy="132.60005" inkscape:window-width="2560" inkscape:window-height="1368" inkscape:window-x="1920" inkscape:window-y="0" inkscape:window-maximized="1" inkscape:current-layer="layer1"/>
+  <defs id="defs1"/>
+  <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1" transform="translate(-77.001892,-62.918175)">
+    <path id="path3-1" style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:10.9;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 122.63291,95.104214 c 4.35829,-0.0307 1.23541,-3.355455 0.068,-3.163635 -1.82123,4.57e-4 -3.13825,2.367575 -0.068,3.163635 z m -0.84104,-1.547261 c -4.88827,1.00436 -9.68792,1.43259 -15.08229,4.1243 -3.17775,1.58565 -5.21669,4.017047 -6.66109,7.027487 -2.895669,6.03513 -3.822499,10.7677 -5.052919,16.11736 3.7547,-3.11766 8.883439,-2.65201 13.031759,-2.43189 1.37016,0.0727 2.66991,0.14611 3.9455,0.22117 l -17.058389,2.24586 c -1.87261,1.20374 -7.47014,5.12228 -9.8702,6.79287 7.90813,-4.99918 15.663089,0.031 17.607189,0.88676 14.0674,6.96324 16.3447,3.67734 18.22163,2.97915 8.44552,-6.31531 9.42949,-6.91498 13.69374,-10.39213 l -10.84534,-1.60559 c 5.05126,0.52064 9.67142,1.22011 14.6079,2.29702 4.83811,1.05546 7.42063,1.87077 10.32598,3.47627 -1.17176,-6.66163 -2.37931,-12.85535 -4.52168,-19.33318 -1.12037,-3.3876 -3.34946,-6.869507 -7.94784,-8.947267 -3.64219,-1.64574 -8.45055,-2.95923 -14.39395,-3.45819 z M 85.044241,127.65411 c -0.35786,0.22622 -0.71588,0.46567 -1.07384,0.73432 -0.20019,0.15024 0.25725,-0.16593 1.07384,-0.73432 z m 30.379539,-8.8191 c 0.71053,0.0476 1.41977,0.0972 2.10581,0.14779 z m -18.491379,7.321 -13.10049,2.38951 c -1.12134,1.34858 -1.61922,4.30097 0.54054,5.36143 0.0378,0.0185 0.88811,0.40847 1.45469,0.15297 2.4856,-1.12102 9.65381,-6.69846 11.10526,-7.90391 z" sodipodi:nodetypes="ccccsccscccccccscssccsccccccccc"/>
+    <path id="path3" style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#4d3f31;fill-opacity:1;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 83.847724,128.54687 c -1.121343,1.34858 -1.6193,4.30096 0.540462,5.36143 0.03781,0.0185 0.888093,0.40827 1.454674,0.15277 2.485612,-1.12102 9.654069,-6.69826 11.105523,-7.90372" sodipodi:nodetypes="cccc"/>
+    <path id="path2" style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#4d3f31;fill-opacity:1;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 94.930218,120.86255 c -2.509748,1.6133 -11.732562,8.11874 -10.943989,7.52692 8.268398,-6.20533 16.649021,-0.7417 18.681101,0.15277 14.06741,6.96324 16.34479,3.6772 18.22172,2.97901 8.44553,-6.31532 9.42904,-6.91511 13.69329,-10.39226 l -12.19824,-1.80545 -10.28403,-0.72169" sodipodi:nodetypes="csccc"/>
+    <path id="path1-9" style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:0.185379;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 91.693843,122.71148 c 5.15372,-1.4747 9.669177,0.95829 11.514587,1.76598 10.3028,4.95676 13.91052,4.57355 16.09087,3.23097 4.7197,-3.04441 8.40084,-6.56122 9.46609,-7.51745" sodipodi:nodetypes="cccc"/>
+    <path id="path1-2-3" style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:0.185379;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 94.679451,120.98227 c 5.187365,-1.03831 8.794389,0.85758 10.639799,1.66528 6.33266,3.04339 10.7815,3.33153 12.96185,1.98895 4.46206,-3.58105 4.9995,-4.05569 6.06475,-5.01191" sodipodi:nodetypes="cccc"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#c6bea8;fill-opacity:1;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;marker:none;enable-background:accumulate" d="m 95.011133,120.82735 c 1.230421,-5.34966 2.157428,-10.0821 5.053097,-16.11724 1.4444,-3.01044 3.4831,-5.441784 6.66086,-7.027432 5.39437,-2.691709 10.19443,-3.12043 15.0827,-4.124785 5.94341,0.498954 10.75143,1.81247 14.39362,3.458207 4.59838,2.07776 6.82755,5.55968 7.94792,8.94728 2.14238,6.47784 3.34992,12.67193 4.52168,19.33357 -2.90536,-1.60551 -5.48773,-2.42114 -10.32585,-3.4766 -9.48854,-2.06995 -17.76729,-2.75969 -30.30206,-3.42482 -4.14833,-0.22012 -9.27727,-0.68584 -13.031967,2.43182 z" id="path2996-6" inkscape:connector-curvature="0" sodipodi:nodetypes="csscsscssc"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 134.42148,116.24371 c -0.59725,-7.23738 -0.36149,-9.38535 -6.3719,-17.270974" id="path2998-0" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 104.84175,113.15253 c 3.81931,-8.97552 6.14952,-10.61969 11.99844,-14.578569" id="path2998-2-6" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 122.85878,91.12025 c 1.79082,0.05581 3.05999,1.86526 -0.28343,1.061477 -3.0296,0.388829 -1.91733,-1.13007 0.28343,-1.061477 z" id="path2998-5-2" inkscape:connector-curvature="0" sodipodi:nodetypes="scs"/>
+    <path style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#b7b1a3;fill-opacity:1;stroke:#000000;stroke-width:0.602073;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" d="m 110.57279,98.128112 c 0.0814,0.140626 -0.52279,0.602395 -0.63468,0.409059 -0.0832,-0.143711 0.55799,-0.541557 0.63468,-0.409059 z" id="path2998-5-3-5-8" inkscape:connector-curvature="0" sodipodi:nodetypes="scs"/>
+  </g>
+</svg> 
+				<a href="/" class="home-link">Gaetan De Waele</a>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/cv/">CV</a></li>
+					<li class="nav-item"><a href="/blog/">Blog</a></li>
+				</ul>
+			</nav>
+
+			<ul class="nav">
+				<li class="nav-item"><a href="https://github.com/gdewael/"> 
+<!-- @license lucide-static v0.303.0 - ISC -->
+<svg class="icon icon-github" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+  <path d="M9 18c-4.51 2-5-2-7-2"/>
+</svg></a></li>
+				<li class="nav-item"><a href="mailto:gaetandewaele@hotmail.com"> 
+<!-- @license lucide-static v0.303.0 - ISC -->
+<svg class="icon icon-mail" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="20" height="16" x="2" y="4" rx="2"/>
+  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+</svg></a></li>
+			</ul>
+		</header>
+
+		<main id="skip">
+			
+<h1>Hacking &quot;vanilla&quot; FlashAttention for variable-length inputs</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2024-08-21">21 August 2024</time></li>
+	<li><i>Tags:</i></li>
+	<li><a href="/tags/research/" class="post-tag">research</a></li>
+</ul>
+
+<p>This blogpost concerns anyone who (1) is dealing with variable-length data samples, and (2) is looking to optimize their transformer-based code.</p>
+<hr>
+<p><a href="https://github.com/Dao-AILab/flash-attention">FlashAttention</a> has changed the transformer game for some two years<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.
+Compared to naive self-attention implementations, it boasts <a href="https://github.com/Dao-AILab/flash-attention/blob/main/assets/flash3_fp16_fwd.png">staggering speed gains</a> in forward passes -- depending on the input sequence lengths.
+In addition, it can reduce the <a href="https://github.com/Dao-AILab/flash-attention/blob/main/assets/flashattn_memory.jpg">VRAM footprint</a> of self-attention by literal orders of magnitude as it reduces the <mjx-container class="MathJax" jax="SVG" style="direction: ltr; position: relative;"><svg style="overflow: visible; min-height: 1px; min-width: 1px; vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="5.906ex" height="2.452ex" role="img" focusable="false" viewBox="0 -833.9 2610.6 1083.9" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="4F" d="M308 428Q289 428 289 438Q289 457 318 508T378 593Q417 638 475 671T599 705Q688 705 732 643T777 483Q777 380 733 285T620 123T464 18T293 -22Q188 -22 123 51T58 245Q58 327 87 403T159 533T249 626T333 685T388 705Q404 705 404 693Q404 674 363 649Q333 632 304 606T239 537T181 429T158 290Q158 179 214 114T364 48Q489 48 583 165T677 438Q677 473 670 505T648 568T601 617T528 636Q518 636 513 635Q486 629 460 600T419 544T392 490Q383 470 372 459Q341 430 308 428Z" style="stroke-width: 3;"/></g></g><g data-mml-node="mo" transform="translate(796,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z" style="stroke-width: 3;"/></g><g data-mml-node="msup" transform="translate(1185,0)"><g data-mml-node="mi"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z" style="stroke-width: 3;"/></g><g data-mml-node="mn" transform="translate(633,363) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z" style="stroke-width: 3;"/></g></g><g data-mml-node="mo" transform="translate(2221.6,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z" style="stroke-width: 3;"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline" style="top: 0px; left: 0px; clip: rect(1px, 1px, 1px, 1px); -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; position: absolute; padding: 1px 0px 0px 0px; border: 0px; display: block; width: auto; overflow: hidden;"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow data-mjx-texclass="ORD"><mi data-mjx-variant="-tex-calligraphic" mathvariant="script">O</mi></mrow><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></math></mjx-assistive-mml></mjx-container> self-attention memory footprint to <mjx-container class="MathJax" jax="SVG" style="direction: ltr; position: relative;"><svg style="overflow: visible; min-height: 1px; min-width: 1px; vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="4.919ex" height="2.262ex" role="img" focusable="false" viewBox="0 -750 2174 1000" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="4F" d="M308 428Q289 428 289 438Q289 457 318 508T378 593Q417 638 475 671T599 705Q688 705 732 643T777 483Q777 380 733 285T620 123T464 18T293 -22Q188 -22 123 51T58 245Q58 327 87 403T159 533T249 626T333 685T388 705Q404 705 404 693Q404 674 363 649Q333 632 304 606T239 537T181 429T158 290Q158 179 214 114T364 48Q489 48 583 165T677 438Q677 473 670 505T648 568T601 617T528 636Q518 636 513 635Q486 629 460 600T419 544T392 490Q383 470 372 459Q341 430 308 428Z" style="stroke-width: 3;"/></g></g><g data-mml-node="mo" transform="translate(796,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z" style="stroke-width: 3;"/></g><g data-mml-node="mi" transform="translate(1185,0)"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z" style="stroke-width: 3;"/></g><g data-mml-node="mo" transform="translate(1785,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z" style="stroke-width: 3;"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline" style="top: 0px; left: 0px; clip: rect(1px, 1px, 1px, 1px); -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; position: absolute; padding: 1px 0px 0px 0px; border: 0px; display: block; width: auto; overflow: hidden;"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow data-mjx-texclass="ORD"><mi data-mjx-variant="-tex-calligraphic" mathvariant="script">O</mi></mrow><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></math></mjx-assistive-mml></mjx-container>.
+Besides allowing bigger input sequence lengths, lower memory footprints allows people to train larger models with larger batch sizes using the same compute budget.
+As FlashAttention just represents an optimized kernel, it does all this without any of the significant drawbacks that attention approximations exhibit.</p>
+<p>As it's since been integrated into the main PyTorch library, it's usage is quickly becoming the standard MO for self-attention computation.</p>
+<h2 id="underperformance-of-flash-attn-varlen-func-vs-vanilla-flashattention" tabindex="-1">Underperformance of <code>flash_attn_varlen_func</code> vs &quot;vanilla&quot; FlashAttention <a class="header-anchor" href="#underperformance-of-flash-attn-varlen-func-vs-vanilla-flashattention">#</a></h2>
+<p>If you have variable-length sequence data, the usual thing to do is to provide a <mjx-container class="MathJax" jax="SVG" style="direction: ltr; position: relative;"><svg style="overflow: visible; min-height: 1px; min-width: 1px; vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="6.315ex" height="1.545ex" role="img" focusable="false" viewBox="0 -683 2791.4 683" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D441" d="M234 637Q231 637 226 637Q201 637 196 638T191 649Q191 676 202 682Q204 683 299 683Q376 683 387 683T401 677Q612 181 616 168L670 381Q723 592 723 606Q723 633 659 637Q635 637 635 648Q635 650 637 660Q641 676 643 679T653 683Q656 683 684 682T767 680Q817 680 843 681T873 682Q888 682 888 672Q888 650 880 642Q878 637 858 637Q787 633 769 597L620 7Q618 0 599 0Q585 0 582 2Q579 5 453 305L326 604L261 344Q196 88 196 79Q201 46 268 46H278Q284 41 284 38T282 19Q278 6 272 0H259Q228 2 151 2Q123 2 100 2T63 2T46 1Q31 1 31 10Q31 14 34 26T39 40Q41 46 62 46Q130 49 150 85Q154 91 221 362L289 634Q287 635 234 637Z" style="stroke-width: 3;"/></g><g data-mml-node="mo" transform="translate(1110.2,0)"><path data-c="D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z" style="stroke-width: 3;"/></g><g data-mml-node="mi" transform="translate(2110.4,0)"><path data-c="1D43F" d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 217 683Q271 680 344 680Q485 680 506 683H518Q524 677 524 674T522 656Q517 641 513 637H475Q406 636 394 628Q387 624 380 600T313 336Q297 271 279 198T252 88L243 52Q243 48 252 48T311 46H328Q360 46 379 47T428 54T478 72T522 106T564 161Q580 191 594 228T611 270Q616 273 628 273H641Q647 264 647 262T627 203T583 83T557 9Q555 4 553 3T537 0T494 -1Q483 -1 418 -1T294 0H116Q32 0 32 10Q32 17 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z" style="stroke-width: 3;"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline" style="top: 0px; left: 0px; clip: rect(1px, 1px, 1px, 1px); -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; position: absolute; padding: 1px 0px 0px 0px; border: 0px; display: block; width: auto; overflow: hidden;"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>N</mi><mo>×</mo><mi>L</mi></math></mjx-assistive-mml></mjx-container> boolean mask, indicating where the padding tokens are.
+This mask will restrict self-attention to not let padded tokens participate.
+As it currently stands, FlashAttention does not support such masks.
+Rather, it provides separate implementations for &quot;vanilla&quot; self-attention and &quot;variable-length&quot; self-attention.
+(If you use the main PyTorch self-attention implementation and provide a mask to account for variable lengths, PyTorch will use a slower non-FlashAttention implementation instead).</p>
+<p>The problem is that FlashAttention's variable-length operation simply does not deliver the same throughputs as the default operation for smaller-to-moderate sequence lengths:</p>
+<div style="text-align: center;">
+<img src = "benchmark.svg" alt="varlendata" style="max-height: 700px; max-width: 700px;"/>
+</div>
+<p>Benchmark details can be found in the footnotes<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
+<p>In order to circumvent the usage of FlashAttention's varlen operation, I propose to hack the data in a way such that - per batch - it is not variable-length anymore.</p>
+<h2 id="cutting-to-min-size-in-each-batch" tabindex="-1">Cutting to min size in each batch <a class="header-anchor" href="#cutting-to-min-size-in-each-batch">#</a></h2>
+<p>Consider a dataset cut into batches.
+The simplest way in order to hack the data to fixed-length per batch is to cut off the ends of the data per batch to the smallest size:</p>
+<div style="text-align: center;">
+<img src = "varlendata.svg" alt="varlendata" style="max-height: 350px; max-width: 350px;"/>
+</div>
+<p>In PyTorch, one can achieve this by (1) wrapping a Dataset object to eliminate any padding to the original sequence length size, and (2) writing a custom batch collate function that aggregates all the samples in a batch and cuts to the minimal sequence length.
+A simple implementation could look something like this:</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">from</span> torch<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>data <span class="token keyword">import</span> <span class="token operator">*</span>
+<span class="token keyword">import</span> torch
+
+<span class="token keyword">class</span> <span class="token class-name">Cut2MinDatasetWrapper</span><span class="token punctuation">(</span>Dataset<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> dataset<span class="token punctuation">,</span> seqlens<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>dataset <span class="token operator">=</span> dataset
+        self<span class="token punctuation">.</span>seqlens <span class="token operator">=</span> seqlens
+
+    <span class="token keyword">def</span> <span class="token function">__getitem__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> index<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        sample <span class="token operator">=</span> self<span class="token punctuation">.</span>dataset<span class="token punctuation">[</span>index<span class="token punctuation">]</span>
+        seqlen <span class="token operator">=</span> self<span class="token punctuation">.</span>seqlens<span class="token punctuation">[</span>index<span class="token punctuation">]</span>
+        <span class="token keyword">return</span> sample<span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span> <span class="token punctuation">:</span>seqlen<span class="token punctuation">]</span> <span class="token comment"># eliminates padding</span>
+
+    <span class="token keyword">def</span> <span class="token function">__len__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token builtin">len</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>dataset<span class="token punctuation">)</span>
+    
+    <span class="token keyword">def</span> <span class="token function">collate_fn</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> batch<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> default_collate<span class="token punctuation">(</span>self<span class="token punctuation">.</span>_cut_to_uniform_size<span class="token punctuation">(</span>batch<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token decorator annotation punctuation">@staticmethod</span>
+    <span class="token keyword">def</span> <span class="token function">_cut_to_uniform_size</span><span class="token punctuation">(</span>list_of_objects<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        min_len <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span><span class="token punctuation">[</span>b<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token keyword">for</span> b <span class="token keyword">in</span> list_of_objects<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token punctuation">[</span>b<span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span> <span class="token punctuation">:</span>min_len<span class="token punctuation">]</span> <span class="token keyword">for</span> b <span class="token keyword">in</span> list_of_objects<span class="token punctuation">]</span></code></pre>
+<p>For an example usage, consider a dummy dataset of 10000 variable-length tensors (ranging from 5 to 100 in length):</p>
+<pre class="language-python" tabindex="0"><code class="language-python">dataset <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token keyword">for</span> _ <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">10000</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    dataset<span class="token punctuation">.</span>append<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>randn<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>randint<span class="token punctuation">(</span>size<span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> low<span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">,</span> high<span class="token operator">=</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+seqlens <span class="token operator">=</span> torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token builtin">len</span><span class="token punctuation">(</span>sample<span class="token punctuation">)</span> <span class="token keyword">for</span> sample <span class="token keyword">in</span> dataset<span class="token punctuation">]</span><span class="token punctuation">)</span>
+dataset <span class="token operator">=</span> torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>rnn<span class="token punctuation">.</span>pad_sequence<span class="token punctuation">(</span>dataset<span class="token punctuation">,</span> batch_first<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span></code></pre>
+<p>Usage of this dataset object would look like this:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">dataset <span class="token operator">=</span> Cut2MinDatasetWrapper<span class="token punctuation">(</span>dataset<span class="token punctuation">,</span> seqlens<span class="token punctuation">)</span>
+dataloader <span class="token operator">=</span> DataLoader<span class="token punctuation">(</span>
+    dataset<span class="token punctuation">,</span>
+    batch_size<span class="token operator">=</span><span class="token number">8</span><span class="token punctuation">,</span>
+    shuffle<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>
+    collate_fn<span class="token operator">=</span>dataset<span class="token punctuation">.</span>collate_fn
+<span class="token punctuation">)</span>
+<span class="token builtin">next</span><span class="token punctuation">(</span><span class="token builtin">iter</span><span class="token punctuation">(</span>dataloader<span class="token punctuation">)</span><span class="token punctuation">)</span></code></pre>
+<h2 id="minimizing-data-loss-by-bucket-batching" tabindex="-1">Minimizing data loss by bucket batching <a class="header-anchor" href="#minimizing-data-loss-by-bucket-batching">#</a></h2>
+<p>It's easy to see that we will merit somewhat by making sure similar sizes are batched together.
+This is where bucket sampling, a concept which has been around for quite some time, comes in.
+For some reason, it was impossible for me to find a modern implementation (that includes support for - for example - distributed data parallel), so here I will provide a simple implementation:</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">def</span> <span class="token function">_partitions_to_len</span><span class="token punctuation">(</span>n_samples<span class="token punctuation">,</span> n_partitions<span class="token punctuation">,</span> batch_size<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># Count the number of samples per partition</span>
+        samples_per_partition <span class="token operator">=</span> <span class="token punctuation">[</span>
+            math<span class="token punctuation">.</span>ceil<span class="token punctuation">(</span>n_samples <span class="token operator">/</span> n_partitions<span class="token punctuation">)</span>
+        <span class="token punctuation">]</span> <span class="token operator">*</span> n_partitions
+
+        <span class="token comment"># The last partition may have fewer samples</span>
+        samples_per_partition<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">-=</span> <span class="token punctuation">(</span>n_samples <span class="token operator">//</span> n_partitions<span class="token punctuation">)</span> <span class="token operator">%</span> n_partitions
+
+        <span class="token comment"># Count the number of batches per partition and sum</span>
+        len_ <span class="token operator">=</span> <span class="token builtin">sum</span><span class="token punctuation">(</span><span class="token punctuation">[</span>math<span class="token punctuation">.</span>ceil<span class="token punctuation">(</span>samples <span class="token operator">/</span> batch_size<span class="token punctuation">)</span> <span class="token keyword">for</span> samples <span class="token keyword">in</span> samples_per_partition<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> len_
+
+<span class="token keyword">class</span> <span class="token class-name">BucketBatchSampler</span><span class="token punctuation">(</span>BatchSampler<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>
+        self<span class="token punctuation">,</span>
+        dataset<span class="token punctuation">,</span>
+        seqlens<span class="token punctuation">,</span> <span class="token comment"># torch.Tensor (n, )</span>
+        batch_size<span class="token punctuation">,</span>
+        n_partitions<span class="token operator">=</span><span class="token number">100</span><span class="token punctuation">,</span>
+        indices<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token comment"># None or list</span>
+        drop_last<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>dataset<span class="token punctuation">,</span> batch_size<span class="token punctuation">,</span> drop_last<span class="token punctuation">)</span>
+
+        <span class="token comment"># `indices` subsamples the dataset in the case of a Distributed Data setting</span>
+        <span class="token keyword">if</span> indices <span class="token keyword">is</span> <span class="token keyword">not</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+            len_dataset <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+            self<span class="token punctuation">.</span>seqlens <span class="token operator">=</span> seqlens<span class="token punctuation">[</span>indices<span class="token punctuation">]</span>
+            indices <span class="token operator">=</span> torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            len_dataset <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>dataset<span class="token punctuation">)</span>
+            self<span class="token punctuation">.</span>seqlens <span class="token operator">=</span> seqlens
+            indices <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span>len_dataset<span class="token punctuation">)</span>
+
+        <span class="token comment"># randomly partition dataset in n_partitions</span>
+        self<span class="token punctuation">.</span>partitioner <span class="token operator">=</span> BatchSampler<span class="token punctuation">(</span>
+            RandomSampler<span class="token punctuation">(</span>indices<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            math<span class="token punctuation">.</span>ceil<span class="token punctuation">(</span>len_dataset <span class="token operator">/</span> n_partitions<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token boolean">False</span>
+        <span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>indices <span class="token operator">=</span> indices
+
+        self<span class="token punctuation">.</span>_len <span class="token operator">=</span> _partitions_to_len<span class="token punctuation">(</span>len_dataset<span class="token punctuation">,</span> n_partitions<span class="token punctuation">,</span> batch_size<span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">__iter__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># For every partition, order all indices in it by seq. len</span>
+        indices_per_partition_ordered <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> partition <span class="token keyword">in</span> self<span class="token punctuation">.</span>partitioner<span class="token punctuation">:</span>
+            partition_indices <span class="token operator">=</span> self<span class="token punctuation">.</span>indices<span class="token punctuation">[</span>partition<span class="token punctuation">]</span>
+
+            partition_asort_seqlens <span class="token operator">=</span> torch<span class="token punctuation">.</span>argsort<span class="token punctuation">(</span>self<span class="token punctuation">.</span>seqlens<span class="token punctuation">[</span>partition<span class="token punctuation">]</span><span class="token punctuation">,</span> descending<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+            partition_indices_in_order <span class="token operator">=</span> <span class="token builtin">list</span><span class="token punctuation">(</span>partition_indices<span class="token punctuation">[</span>partition_asort_seqlens<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+            indices_per_partition_ordered<span class="token punctuation">.</span>append<span class="token punctuation">(</span>partition_indices_in_order<span class="token punctuation">)</span>
+
+        <span class="token comment"># Then iterate through all partitions</span>
+        <span class="token keyword">for</span> partition_indices <span class="token keyword">in</span> indices_per_partition_ordered<span class="token punctuation">:</span>
+            <span class="token comment"># Make batches per partition, then randomly shuffle around</span>
+            <span class="token comment"># The shuffling prevents that the smallest batches will always be first</span>
+            <span class="token keyword">for</span> batch <span class="token keyword">in</span> SubsetRandomSampler<span class="token punctuation">(</span><span class="token builtin">list</span><span class="token punctuation">(</span>BatchSampler<span class="token punctuation">(</span>partition_indices<span class="token punctuation">,</span> self<span class="token punctuation">.</span>batch_size<span class="token punctuation">,</span> self<span class="token punctuation">.</span>drop_last<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token keyword">yield</span> batch
+
+    <span class="token keyword">def</span> <span class="token function">__len__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>_len</code></pre>
+<p>The following schematic should make it clear what is happening:</p>
+<div style="text-align: center;">
+<img src = "bucketbatch.svg" alt="bucketbatch" style="max-height: 850px; max-width: 850px;"/>
+</div>
+<p>Note that this implementation includes many steps in order to retain as much &quot;stochasticity&quot; as possible in batch construction.
+Partitioning the data in subsets before sorting makes it so that samples do not consistently land in the same batch each epoch.
+Shuffling batches after bucketing makes sure that the model is not consistently presented with batches of similar sizes right after one another.</p>
+<p>The distributed data parallel version of bucket sampling follows the same procedure - but separately for each slice of data each device processes in an epoch. Implementation in the footnotes<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>.</p>
+<p>An example using the same data as previous:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">sampler <span class="token operator">=</span> BucketBatchSampler<span class="token punctuation">(</span>
+    dataset<span class="token punctuation">,</span>
+    seqlens<span class="token punctuation">,</span>
+    batch_size<span class="token operator">=</span><span class="token number">8</span><span class="token punctuation">,</span>
+    n_partitions<span class="token operator">=</span><span class="token number">20</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span>
+
+dataloader <span class="token operator">=</span> DataLoader<span class="token punctuation">(</span>
+    dataset<span class="token punctuation">,</span>
+    batch_sampler<span class="token operator">=</span>sampler<span class="token punctuation">,</span>
+    collate_fn<span class="token operator">=</span>dataset<span class="token punctuation">.</span>collate_fn
+<span class="token punctuation">)</span>
+<span class="token builtin">next</span><span class="token punctuation">(</span><span class="token builtin">iter</span><span class="token punctuation">(</span>dataloader<span class="token punctuation">)</span><span class="token punctuation">)</span></code></pre>
+<p>Using the previous dummy example and <strong>without bucket batching,</strong> the proportion of tokens thrown away due to cutting to min size in a batch is <strong><mjx-container class="MathJax" jax="SVG" style="direction: ltr; position: relative;"><svg style="overflow: visible; min-height: 1px; min-width: 1px; vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.76ex" height="1.507ex" role="img" focusable="false" viewBox="0 -666 778 666" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mo"><path data-c="B1" d="M56 320T56 333T70 353H369V502Q369 651 371 655Q376 666 388 666Q402 666 405 654T409 596V500V353H707Q722 345 722 333Q722 320 707 313H409V40H707Q722 32 722 20T707 0H70Q56 7 56 20T70 40H369V313H70Q56 320 56 333Z" style="stroke-width: 3;"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline" style="top: 0px; left: 0px; clip: rect(1px, 1px, 1px, 1px); -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; position: absolute; padding: 1px 0px 0px 0px; border: 0px; display: block; width: auto; overflow: hidden;"><math xmlns="http://www.w3.org/1998/Math/MathML"><mo>±</mo></math></mjx-assistive-mml></mjx-container> 77%</strong>.
+<strong>With bucket batching as above, this figure becomes <mjx-container class="MathJax" jax="SVG" style="direction: ltr; position: relative;"><svg style="overflow: visible; min-height: 1px; min-width: 1px; vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.76ex" height="1.507ex" role="img" focusable="false" viewBox="0 -666 778 666" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mo"><path data-c="B1" d="M56 320T56 333T70 353H369V502Q369 651 371 655Q376 666 388 666Q402 666 405 654T409 596V500V353H707Q722 345 722 333Q722 320 707 313H409V40H707Q722 32 722 20T707 0H70Q56 7 56 20T70 40H369V313H70Q56 320 56 333Z" style="stroke-width: 3;"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline" style="top: 0px; left: 0px; clip: rect(1px, 1px, 1px, 1px); -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; position: absolute; padding: 1px 0px 0px 0px; border: 0px; display: block; width: auto; overflow: hidden;"><math xmlns="http://www.w3.org/1998/Math/MathML"><mo>±</mo></math></mjx-assistive-mml></mjx-container> 1.39%</strong>.</p>
+<p>Note that the number of made partitions has an impact on this figure.
+Increasing the partition number makes mini-batch construction more random, but each subset is smaller.
+The smaller size of each subset makes it so that it is harder to create batches wherein all samples have similar sequence lengths.
+Hence, it is crucial to balance the number of partitions with training dataset size.</p>
+<p>Many problem settings allow the remaining data-token loss to be made as inconsequential as possible.
+For example, with many data modalities, one can meaningfully sort the tokens in a sample such that the least-important tokens are last in the input set.
+Consider scRNA-seq, where one might only input non-zero counts into the model, such as in scGPT<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup>.
+If one sorts gene inputs by its count value, only the very-lowly expressed genes are thrown away.
+For mass spectral data, we can construct a similar rationale, throwing away the lowest intensity peaks in a spectrum.
+For protein/RNA/DNA/SMILES sequences, I see two choices: either (1) similarly cutting off the ends, or (2) taking a random crop.</p>
+<p>Using this framework, every batch has the same number of tokens, relinquishing the need for masking tokens.
+Hence, it is possible to use &quot;vanilla&quot; FlashAttention operation again.</p>
+<h2 id="a-pypi-package" tabindex="-1">A PyPI package <a class="header-anchor" href="#a-pypi-package">#</a></h2>
+<p>If you want to use the concepts I've laid out here for yourself, I have deposited a more fleshed-out version of the code on <a href="https://github.com/gdewael/cut2min-bucket">GitHub</a>.
+Additionally, the code is distributed on PyPI as a (hopefully) easy to use package:</p>
+<pre class="language-bash" tabindex="0"><code class="language-bash">pip <span class="token function">install</span> cut2min-bucket</code></pre>
+<hr><h2 class="mt-3">References and footnotes</h2>
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>Dao, Tri, et al. &quot;Flashattention: Fast and memory-efficient exact attention with io-awareness.&quot; Advances in Neural Information Processing Systems 35 (2022): 16344-16359. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>To reproduce the <code>flash_attn_varlen_func</code> forward speed benchmark, using <code>torch 2.4.0</code> and <code>flash-attn 2.6.3</code>, run in an IPython Notebook:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">SEQLEN <span class="token operator">=</span> <span class="token number">512</span>
+<span class="token keyword">import</span> torch
+<span class="token keyword">import</span> torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>functional <span class="token keyword">as</span> F
+<span class="token keyword">from</span> flash_attn <span class="token keyword">import</span> flash_attn_func<span class="token punctuation">,</span> flash_attn_varlen_func
+
+<span class="token keyword">def</span> <span class="token function">modified_forward_default</span><span class="token punctuation">(</span>q<span class="token punctuation">,</span>k<span class="token punctuation">,</span>v<span class="token punctuation">,</span> mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> causal<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> flash_attn_func<span class="token punctuation">(</span>q<span class="token punctuation">,</span>k<span class="token punctuation">,</span>v<span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">modified_forward_varlen</span><span class="token punctuation">(</span>q<span class="token punctuation">,</span>k<span class="token punctuation">,</span>v<span class="token punctuation">,</span> mask<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> causal<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    bsz<span class="token punctuation">,</span> seqlen<span class="token punctuation">,</span> nh<span class="token punctuation">,</span> h <span class="token operator">=</span> q<span class="token punctuation">.</span>shape
+    q <span class="token operator">=</span> q<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> nh<span class="token punctuation">,</span> h<span class="token punctuation">)</span>
+    k <span class="token operator">=</span> k<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> nh<span class="token punctuation">,</span> h<span class="token punctuation">)</span>
+    v <span class="token operator">=</span> v<span class="token punctuation">.</span>view<span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> nh<span class="token punctuation">,</span> h<span class="token punctuation">)</span>
+    seqlens <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span>bsz<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> seqlen
+    seqlens_pert <span class="token operator">=</span> seqlens <span class="token operator">+</span> F<span class="token punctuation">.</span>pad<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>repeat<span class="token punctuation">(</span>bsz<span class="token operator">//</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>cumsum<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token comment"># we periodically assign 1 tokens more or less from and to each sequence</span>
+    <span class="token comment"># this makes `flash_attn_varlen_func` handle the input as variable length</span>
+    <span class="token comment"># otherwise, it shortcuts to default flash attention</span>
+    cu_seqlens_q <span class="token operator">=</span> cu_seqlens_k <span class="token operator">=</span> seqlens_pert<span class="token punctuation">.</span>to<span class="token punctuation">(</span>q<span class="token punctuation">.</span>device<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>int32<span class="token punctuation">)</span>
+    max_seqlen_q <span class="token operator">=</span> max_seqlen_k <span class="token operator">=</span> seqlen<span class="token operator">+</span><span class="token number">2</span>
+    <span class="token keyword">return</span> flash_attn_varlen_func<span class="token punctuation">(</span>q<span class="token punctuation">,</span>k<span class="token punctuation">,</span>v<span class="token punctuation">,</span> cu_seqlens_q<span class="token punctuation">,</span> cu_seqlens_k<span class="token punctuation">,</span> max_seqlen_q<span class="token punctuation">,</span> max_seqlen_k<span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span>bsz<span class="token punctuation">,</span> seqlen<span class="token punctuation">,</span> nh<span class="token punctuation">,</span> h<span class="token punctuation">)</span>
+
+
+q <span class="token operator">=</span> torch<span class="token punctuation">.</span>randn<span class="token punctuation">(</span><span class="token number">16</span><span class="token punctuation">,</span> SEQLEN<span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>bfloat16<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span><span class="token string">"cuda:0"</span><span class="token punctuation">)</span>
+k <span class="token operator">=</span> torch<span class="token punctuation">.</span>randn<span class="token punctuation">(</span><span class="token number">16</span><span class="token punctuation">,</span> SEQLEN<span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>bfloat16<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span><span class="token string">"cuda:0"</span><span class="token punctuation">)</span>
+v <span class="token operator">=</span> torch<span class="token punctuation">.</span>randn<span class="token punctuation">(</span><span class="token number">16</span><span class="token punctuation">,</span> SEQLEN<span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>bfloat16<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span><span class="token string">"cuda:0"</span><span class="token punctuation">)</span>
+
+<span class="token operator">%</span>timeit z <span class="token operator">=</span> modified_forward_varlen<span class="token punctuation">(</span>q<span class="token punctuation">,</span>k<span class="token punctuation">,</span>v<span class="token punctuation">)</span>
+<span class="token operator">%</span>timeit z <span class="token operator">=</span> modified_forward_default<span class="token punctuation">(</span>q<span class="token punctuation">,</span>k<span class="token punctuation">,</span>v<span class="token punctuation">)</span></code></pre>
+<p>For various values of <code>SEQLEN</code>.</p>
+<p>Note that <code>flash_attn_varlen_func</code> defaults to the the default <code>flash_attn_func</code> if given fixed-length sequences.
+For this reason, this benchmark periodically assign 1 tokens more or less from and to each sequence to force the usage of <code>flash_attn_varlen_func</code>. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p>Implementation of distributed bucket batch sampler:</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">DistributedBucketSampler</span><span class="token punctuation">(</span>DistributedSampler<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>
+        self<span class="token punctuation">,</span>
+        dataset<span class="token punctuation">,</span>
+        batch_size<span class="token punctuation">,</span>
+        n_partitions <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">,</span>
+        num_replicas<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span>
+        rank<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span>
+        shuffle<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>
+        seed<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>
+        drop_last<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>
+            dataset<span class="token punctuation">,</span>
+            num_replicas<span class="token operator">=</span>num_replicas<span class="token punctuation">,</span>
+            rank<span class="token operator">=</span>rank<span class="token punctuation">,</span>
+            shuffle<span class="token operator">=</span>shuffle<span class="token punctuation">,</span>
+            seed<span class="token operator">=</span>seed<span class="token punctuation">,</span>
+            drop_last<span class="token operator">=</span>drop_last
+        <span class="token punctuation">)</span>
+
+        self<span class="token punctuation">.</span>batch_size <span class="token operator">=</span> batch_size
+        self<span class="token punctuation">.</span>n_partitions <span class="token operator">=</span> n_partitions
+
+        self<span class="token punctuation">.</span>_len <span class="token operator">=</span> _partitions_to_len<span class="token punctuation">(</span>self<span class="token punctuation">.</span>num_samples<span class="token punctuation">,</span> n_partitions<span class="token punctuation">,</span> batch_size<span class="token punctuation">)</span>
+    <span class="token keyword">def</span> <span class="token function">__iter__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># Inherit a list of indices from parent class DistributedSampler</span>
+        indices <span class="token operator">=</span> <span class="token builtin">list</span><span class="token punctuation">(</span><span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__iter__<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+        <span class="token comment"># Use it to create a bucketbatchSampler</span>
+        batch_sampler <span class="token operator">=</span> BucketBatchSampler<span class="token punctuation">(</span>
+            self<span class="token punctuation">.</span>dataset<span class="token punctuation">,</span>
+            batch_size<span class="token operator">=</span>self<span class="token punctuation">.</span>batch_size<span class="token punctuation">,</span>
+            n_partitions<span class="token operator">=</span>self<span class="token punctuation">.</span>n_partitions<span class="token punctuation">,</span>
+            indices <span class="token operator">=</span> indices
+            <span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token builtin">iter</span><span class="token punctuation">(</span>batch_sampler<span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">__len__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>_len</code></pre>
+<p>Note that if you're using PyTorch-Lightning, note that <code>Trainer</code> would automatically instate its own sampler if using the <code>ddp</code> strategy, hence overriding this self-defined sampler.
+To prevent this behavior, make sure to use <code>use_distributed_sampler=False</code> when calling <code>Trainer</code>. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p>Cui, Haotian, et al. &quot;scGPT: toward building a foundation model for single-cell multi-omics using generative AI.&quot; Nature Methods (2024): 1-11. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+<ul class="links-nextprev"><li>Previous: <a href="/blog/equivariance/">Visualizing equivariances in transformer neural networks</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/flashattnvarlen/ -->
+	</body>
+</html>
