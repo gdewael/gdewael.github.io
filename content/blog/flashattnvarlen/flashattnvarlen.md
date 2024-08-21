@@ -268,6 +268,21 @@ pip install cut2min-bucket
     ```
     For various values of `SEQLEN`.
 
+    Then, to compute TFLOPs/s, use the resulting time:
+    ```python
+    import math
+    time_in_sec = ...
+
+    def flops(batch, seqlen, headdim, nheads, causal, mode="fwd"):
+        assert mode in ["fwd", "bwd", "fwd_bwd"]
+        f = 4 * batch * seqlen**2 * nheads * headdim // (2 if causal else 1)
+        return f if mode == "fwd" else (2.5 * f if mode == "bwd" else 3.5 * f)
+    def efficiency(flop, time):
+        return (flop / time / 10**12) if not math.isnan(time) else 0.0
+
+    tflops_s = efficiency(flops(16, SEQLEN, 8, 32, False), time_in_sec)
+    ```
+
     Note that `flash_attn_varlen_func` defaults to the the default `flash_attn_func` if given fixed-length sequences.
     For this reason, this benchmark periodically assign 1 tokens more or less from and to each sequence to force the usage of `flash_attn_varlen_func`.
 
