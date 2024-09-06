@@ -6,7 +6,7 @@ tags:
   - research
 ---
 
-Transformers neural networks have become the dominant architecture within many subfields of deep learning.
+Transformer neural networks have become the dominant architecture within many subfields of deep learning.
 Their success is partly owed due to the fact that self-attention is a very generic operation in terms of the geometric priors it uses[^geom].
 The following blogpost interactively visualizes some geometric priors in transformers.
 The target audience for this blogpost are those who are already (at least vaguely) familiar with self-attention and want to see some simple visualizations of what positional encodings do to them[^illustrated].

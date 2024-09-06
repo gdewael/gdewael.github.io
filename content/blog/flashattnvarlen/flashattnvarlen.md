@@ -75,7 +75,7 @@ class Cut2MinDatasetWrapper(Dataset):
         return [b[..., :min_len] for b in list_of_objects]
 ```
 
-For an example usage, consider a dummy dataset of 10000 variable-length tensors (ranging from 5 to 100 in length):
+For an example usage, consider a dummy dataset of 10000 variable-length tensors (ranging from 5 to 1000 in length):
 ```python
 dataset = []
 for _ in range(10000):
