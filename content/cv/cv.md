@@ -47,6 +47,7 @@ Additional courses:
     - [h5torch](https://github.com/gdewael/h5torch), a simple utility that allows PyTorch Dataloading from HDF5 files.
     - [bio-attention](https://github.com/gdewael/bio-attention), definitions for transformers adapted to the work in my PhD.
     - [maldi-nn](https://github.com/gdewael/maldi-nn), code supporting my work on MALDI-TOF mass spectromety.
+    - [cut2min-bucket](https://github.com/gdewael/cut2min-bucket), a small dataloading utility to use flash-attn with variable length inputs.
 
 
 
@@ -55,7 +56,9 @@ Additional courses:
 ## Teaching
 
 - *2020 - Current* : **Teaching assistance** for "Machine learning for the Life Sciences" course
-- *2023 - Current* : **Tutor for Master thesis** "Novel neural networks for bacterial species prediction from MALDI-TOF data" by Jorge Isaac Cueva Villavicencio
+- *2024 - Current* : **Tutor for Master thesis** "End-to-end de novo metabolomics" by Wout Welvaert
+- *2024 - Current* : **Tutor for Master thesis** "Variational inference for DTI" by Robbe Claeys
+- *2023 - 2024* : **Tutor for Master thesis** "Novel neural networks for bacterial species prediction from MALDI-TOF data" by Jorge Isaac Cueva Villavicencio
 - *2022 - 2023* : **Tutor for Master thesis** "Two-Branch Neural Networks for Predicting Protein-DNA Interaction" by Natan Tourne
 - *2022 - 2023* : **Tutor for Master thesis** "Designing novel protein sequences using advanced generative models" by Scout Van den Bergh
 - *2021 - 2022* : **Tutor for Master thesis** "Detection of 5mC modification in Nanopore sequencing data using deep learning" by Yari Van Laere
