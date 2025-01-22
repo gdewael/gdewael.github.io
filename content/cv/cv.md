@@ -25,14 +25,18 @@ Additional courses:
 ## Academic output
 - **Publications**:
     - **De Waele, Gaetan**, Jim Clauwaert, Gerben Menschaert, and Willem Waegeman. ["CpG Transformer for imputation of single-cell methylomes."](https://doi.org/10.1093/bioinformatics/btab746) Bioinformatics 38, no. 3 (2022): 597-603.
-    - **De Waele, Gaetan**, Gerben Menschaert, and Willem Waegeman.["An antimicrobial drug recommender system using MALDI-TOF MS and dual-branch neural networks"](https://doi.org/10.7554/eLife.93242.4) eLife 13:RP93242 (2024)
+    - **De Waele, Gaetan**, Gerben Menschaert, and Willem Waegeman.["An antimicrobial drug recommender system using MALDI-TOF MS and dual-branch neural networks"](https://doi.org/10.7554/eLife.93242.4) eLife 13:RP93242 (2024).
+    - Mey, Friederike*, **Gaetan De Waele***, Wouter Demeester, Chiara Guidi, Dries Duchi, Tomek Diederen, Hanne Kochuyt et al. ["Machine learning reveals novel compound for the improved production of chitooligosaccharides in Escherichia coli."](https://doi.org/10.1016/j.nbt.2025.01.005) New Biotechnology (2025).
+    - **De Waele, Gaetan**, Gerben Menschaert, Peter Vandamme, and Willem Waegeman. ["Pre-trained Maldi Transformers improve MALDI-TOF MS-based prediction."](https://doi.org/10.1016/j.compbiomed.2025.109695) Computers in Biology and Medicine (2025).
 
 <p>
 
 - **Preprints**:
-    - **De Waele, Gaetan**, Gerben Menschaert, Peter Vandamme, and Willem Waegeman. ["Pre-trained Maldi Transformers improve MALDI-TOF MS-based prediction."](https://www.biorxiv.org/content/10.1101/2024.01.18.576189v1) bioRxiv (2024): 2024-01.
+    - None currently
 
 <p>
+
+(*: shared first author)
 
 - **Conference contributions**:
     - **Oral** at ISMB22, Madison, USA. "CpG Transformer for imputation of single-cell methylomes"
