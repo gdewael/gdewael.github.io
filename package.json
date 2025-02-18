@@ -46,6 +46,7 @@
 		"@fontsource/noto-mono" : "^5.0.7",
 		"@fontsource/noto-serif" : "^5.0.20",
 		"markdown-it-footnote" : "^4.0.0",
-		"markdown-it-mathjax3" : "^4.3.2"
+		"markdown-it-mathjax3" : "^4.3.2",
+		"simplelightbox": "^2.14.3"
 	}
 }
