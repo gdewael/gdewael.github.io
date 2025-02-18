@@ -158,6 +158,19 @@ code {
 	word-break: break-all;
 }
 
+
+div.gallery
+{
+  width: 100vw;
+  max-width: 65rem;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  position: relative;
+  box-shadow: none;
+  /* border: 1px solid #ffffff1a; */
+  --border: #ffffff1a;
+}
+
 /* Header */
 header {
 	display: flex;

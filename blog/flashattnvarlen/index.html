@@ -337,6 +337,19 @@ code {
 	word-break: break-all;
 }
 
+
+div.gallery
+{
+  width: 100vw;
+  max-width: 65rem;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  position: relative;
+  box-shadow: none;
+  /* border: 1px solid #ffffff1a; */
+  --border: #ffffff1a;
+}
+
 /* Header */
 header {
 	display: flex;
@@ -529,23 +542,23 @@ h2 + .header-anchor {
 <p>This blogpost concerns anyone who (1) is dealing with variable-length data samples, and (2) is looking to optimize their transformer-based code.</p>
 <hr>
 <p><a href="https://github.com/Dao-AILab/flash-attention">FlashAttention</a> has changed the transformer game for some two years<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.
-Compared to naive self-attention implementations, it boasts <a href="https://github.com/Dao-AILab/flash-attention/blob/main/assets/flash3_fp16_fwd.png">staggering speed gains</a> in forward passes -- depending on the input sequence lengths.
+Compared to naive self-attention implementations, it boasts <a href="https://github.com/Dao-AILab/flash-attention/blob/main/assets/flash3_fp16_fwd.png">staggering speed gains</a> in forward passes – depending on the input sequence lengths.
 In addition, it can reduce the <a href="https://github.com/Dao-AILab/flash-attention/blob/main/assets/flashattn_memory.jpg">VRAM footprint</a> of self-attention by literal orders of magnitude as it reduces the <mjx-container class="MathJax" jax="SVG" style="direction: ltr; position: relative;"><svg style="overflow: visible; min-height: 1px; min-width: 1px; vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="5.906ex" height="2.452ex" role="img" focusable="false" viewBox="0 -833.9 2610.6 1083.9" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="4F" d="M308 428Q289 428 289 438Q289 457 318 508T378 593Q417 638 475 671T599 705Q688 705 732 643T777 483Q777 380 733 285T620 123T464 18T293 -22Q188 -22 123 51T58 245Q58 327 87 403T159 533T249 626T333 685T388 705Q404 705 404 693Q404 674 363 649Q333 632 304 606T239 537T181 429T158 290Q158 179 214 114T364 48Q489 48 583 165T677 438Q677 473 670 505T648 568T601 617T528 636Q518 636 513 635Q486 629 460 600T419 544T392 490Q383 470 372 459Q341 430 308 428Z" style="stroke-width: 3;"/></g></g><g data-mml-node="mo" transform="translate(796,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z" style="stroke-width: 3;"/></g><g data-mml-node="msup" transform="translate(1185,0)"><g data-mml-node="mi"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z" style="stroke-width: 3;"/></g><g data-mml-node="mn" transform="translate(633,363) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z" style="stroke-width: 3;"/></g></g><g data-mml-node="mo" transform="translate(2221.6,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z" style="stroke-width: 3;"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline" style="top: 0px; left: 0px; clip: rect(1px, 1px, 1px, 1px); -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; position: absolute; padding: 1px 0px 0px 0px; border: 0px; display: block; width: auto; overflow: hidden;"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow data-mjx-texclass="ORD"><mi data-mjx-variant="-tex-calligraphic" mathvariant="script">O</mi></mrow><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></math></mjx-assistive-mml></mjx-container> self-attention memory footprint to <mjx-container class="MathJax" jax="SVG" style="direction: ltr; position: relative;"><svg style="overflow: visible; min-height: 1px; min-width: 1px; vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="4.919ex" height="2.262ex" role="img" focusable="false" viewBox="0 -750 2174 1000" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="4F" d="M308 428Q289 428 289 438Q289 457 318 508T378 593Q417 638 475 671T599 705Q688 705 732 643T777 483Q777 380 733 285T620 123T464 18T293 -22Q188 -22 123 51T58 245Q58 327 87 403T159 533T249 626T333 685T388 705Q404 705 404 693Q404 674 363 649Q333 632 304 606T239 537T181 429T158 290Q158 179 214 114T364 48Q489 48 583 165T677 438Q677 473 670 505T648 568T601 617T528 636Q518 636 513 635Q486 629 460 600T419 544T392 490Q383 470 372 459Q341 430 308 428Z" style="stroke-width: 3;"/></g></g><g data-mml-node="mo" transform="translate(796,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z" style="stroke-width: 3;"/></g><g data-mml-node="mi" transform="translate(1185,0)"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z" style="stroke-width: 3;"/></g><g data-mml-node="mo" transform="translate(1785,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z" style="stroke-width: 3;"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline" style="top: 0px; left: 0px; clip: rect(1px, 1px, 1px, 1px); -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; position: absolute; padding: 1px 0px 0px 0px; border: 0px; display: block; width: auto; overflow: hidden;"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow data-mjx-texclass="ORD"><mi data-mjx-variant="-tex-calligraphic" mathvariant="script">O</mi></mrow><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></math></mjx-assistive-mml></mjx-container>.
 Besides allowing bigger input sequence lengths, lower memory footprints allows people to train larger models with larger batch sizes using the same compute budget.
 As FlashAttention just represents an optimized kernel, it does all this without any of the significant drawbacks that attention approximations exhibit.</p>
-<p>As it's since been integrated into the main PyTorch library, it's usage is quickly becoming the standard MO for self-attention computation.</p>
-<h2 id="underperformance-of-flash-attn-varlen-func-vs-vanilla-flashattention" tabindex="-1">Underperformance of <code>flash_attn_varlen_func</code> vs &quot;vanilla&quot; FlashAttention <a class="header-anchor" href="#underperformance-of-flash-attn-varlen-func-vs-vanilla-flashattention">#</a></h2>
+<p>As it’s since been integrated into the main PyTorch library, it’s usage is quickly becoming the standard MO for self-attention computation.</p>
+<h2 id="underperformance-of-flash-attn-varlen-func-vs-vanilla-flashattention" tabindex="-1">Underperformance of <code>flash_attn_varlen_func</code> vs “vanilla” FlashAttention <a class="header-anchor" href="#underperformance-of-flash-attn-varlen-func-vs-vanilla-flashattention">#</a></h2>
 <p>If you have variable-length sequence data, the usual thing to do is to provide a <mjx-container class="MathJax" jax="SVG" style="direction: ltr; position: relative;"><svg style="overflow: visible; min-height: 1px; min-width: 1px; vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="6.315ex" height="1.545ex" role="img" focusable="false" viewBox="0 -683 2791.4 683" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D441" d="M234 637Q231 637 226 637Q201 637 196 638T191 649Q191 676 202 682Q204 683 299 683Q376 683 387 683T401 677Q612 181 616 168L670 381Q723 592 723 606Q723 633 659 637Q635 637 635 648Q635 650 637 660Q641 676 643 679T653 683Q656 683 684 682T767 680Q817 680 843 681T873 682Q888 682 888 672Q888 650 880 642Q878 637 858 637Q787 633 769 597L620 7Q618 0 599 0Q585 0 582 2Q579 5 453 305L326 604L261 344Q196 88 196 79Q201 46 268 46H278Q284 41 284 38T282 19Q278 6 272 0H259Q228 2 151 2Q123 2 100 2T63 2T46 1Q31 1 31 10Q31 14 34 26T39 40Q41 46 62 46Q130 49 150 85Q154 91 221 362L289 634Q287 635 234 637Z" style="stroke-width: 3;"/></g><g data-mml-node="mo" transform="translate(1110.2,0)"><path data-c="D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z" style="stroke-width: 3;"/></g><g data-mml-node="mi" transform="translate(2110.4,0)"><path data-c="1D43F" d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 217 683Q271 680 344 680Q485 680 506 683H518Q524 677 524 674T522 656Q517 641 513 637H475Q406 636 394 628Q387 624 380 600T313 336Q297 271 279 198T252 88L243 52Q243 48 252 48T311 46H328Q360 46 379 47T428 54T478 72T522 106T564 161Q580 191 594 228T611 270Q616 273 628 273H641Q647 264 647 262T627 203T583 83T557 9Q555 4 553 3T537 0T494 -1Q483 -1 418 -1T294 0H116Q32 0 32 10Q32 17 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z" style="stroke-width: 3;"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline" style="top: 0px; left: 0px; clip: rect(1px, 1px, 1px, 1px); -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; position: absolute; padding: 1px 0px 0px 0px; border: 0px; display: block; width: auto; overflow: hidden;"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>N</mi><mo>×</mo><mi>L</mi></math></mjx-assistive-mml></mjx-container> boolean mask, indicating where the padding tokens are.
 This mask will restrict self-attention to not let padded tokens participate.
 As it currently stands, FlashAttention does not support such masks.
-Rather, it provides separate implementations for &quot;vanilla&quot; self-attention and &quot;variable-length&quot; self-attention.
+Rather, it provides separate implementations for “vanilla” self-attention and “variable-length” self-attention.
 (If you use the main PyTorch self-attention implementation and provide a mask to account for variable lengths, PyTorch will use a slower non-FlashAttention implementation instead).</p>
-<p>The problem is that FlashAttention's variable-length operation simply does not deliver the same throughputs as the default operation for smaller-to-moderate sequence lengths:</p>
+<p>The problem is that FlashAttention’s variable-length operation simply does not deliver the same throughputs as the default operation for smaller-to-moderate sequence lengths:</p>
 <div style="text-align: center;">
 <img src = "benchmark.svg" alt="varlendata" style="max-height: 700px; max-width: 700px;"/>
 </div>
 <p>Benchmark details can be found in the footnotes<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
-<p>In order to circumvent the usage of FlashAttention's varlen operation, I propose to hack the data in a way such that - per batch - it is not variable-length anymore.</p>
+<p>In order to circumvent the usage of FlashAttention’s varlen operation, I propose to hack the data in a way such that - per batch - it is not variable-length anymore.</p>
 <h2 id="cutting-to-min-size-in-each-batch" tabindex="-1">Cutting to min size in each batch <a class="header-anchor" href="#cutting-to-min-size-in-each-batch">#</a></h2>
 <p>Consider a dataset cut into batches.
 The simplest way in order to hack the data to fixed-length per batch is to cut off the ends of the data per batch to the smallest size:</p>
@@ -595,7 +608,7 @@ dataloader <span class="token operator">=</span> DataLoader<span class="token pu
 <span class="token punctuation">)</span>
 <span class="token builtin">next</span><span class="token punctuation">(</span><span class="token builtin">iter</span><span class="token punctuation">(</span>dataloader<span class="token punctuation">)</span><span class="token punctuation">)</span></code></pre>
 <h2 id="minimizing-data-loss-by-bucket-batching" tabindex="-1">Minimizing data loss by bucket batching <a class="header-anchor" href="#minimizing-data-loss-by-bucket-batching">#</a></h2>
-<p>It's easy to see that we will merit somewhat by making sure similar sizes are batched together.
+<p>It’s easy to see that we will merit somewhat by making sure similar sizes are batched together.
 This is where bucket sampling, a concept which has been around for quite some time, comes in.
 For some reason, it was impossible for me to find a modern implementation (that includes support for - for example - distributed data parallel), so here I will provide a simple implementation:</p>
 <pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">def</span> <span class="token function">_partitions_to_len</span><span class="token punctuation">(</span>n_samples<span class="token punctuation">,</span> n_partitions<span class="token punctuation">,</span> batch_size<span class="token punctuation">)</span><span class="token punctuation">:</span>
@@ -666,7 +679,7 @@ For some reason, it was impossible for me to find a modern implementation (that 
 <div style="text-align: center;">
 <img src = "bucketbatch.svg" alt="bucketbatch" style="max-height: 850px; max-width: 850px;"/>
 </div>
-<p>Note that this implementation includes many steps in order to retain as much &quot;stochasticity&quot; as possible in batch construction.
+<p>Note that this implementation includes many steps in order to retain as much “stochasticity” as possible in batch construction.
 Partitioning the data in subsets before sorting makes it so that samples do not consistently land in the same batch each epoch.
 Shuffling batches after bucketing makes sure that the model is not consistently presented with batches of similar sizes right after one another.</p>
 <p>The distributed data parallel version of bucket sampling follows the same procedure - but separately for each slice of data each device processes in an epoch. Implementation in the footnotes<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>.</p>
@@ -697,15 +710,15 @@ If one sorts gene inputs by its count value, only the very-lowly expressed genes
 For mass spectral data, we can construct a similar rationale, throwing away the lowest intensity peaks in a spectrum.
 For protein/RNA/DNA/SMILES sequences, I see two choices: either (1) similarly cutting off the ends, or (2) taking a random crop.</p>
 <p>Using this framework, every batch has the same number of tokens, relinquishing the need for masking tokens.
-Hence, it is possible to use &quot;vanilla&quot; FlashAttention operation again.</p>
+Hence, it is possible to use “vanilla” FlashAttention operation again.</p>
 <h2 id="a-pypi-package" tabindex="-1">A PyPI package <a class="header-anchor" href="#a-pypi-package">#</a></h2>
-<p>If you want to use the concepts I've laid out here for yourself, I have deposited a more fleshed-out version of the code on <a href="https://github.com/gdewael/cut2min-bucket">GitHub</a>.
+<p>If you want to use the concepts I’ve laid out here for yourself, I have deposited a more fleshed-out version of the code on <a href="https://github.com/gdewael/cut2min-bucket">GitHub</a>.
 Additionally, the code is distributed on PyPI as a (hopefully) easy to use package:</p>
 <pre class="language-bash" tabindex="0"><code class="language-bash">pip <span class="token function">install</span> cut2min-bucket</code></pre>
 <hr><h2 class="mt-3">References and footnotes</h2>
 <section class="footnotes">
 <ol class="footnotes-list">
-<li id="fn1" class="footnote-item"><p>Dao, Tri, et al. &quot;Flashattention: Fast and memory-efficient exact attention with io-awareness.&quot; Advances in Neural Information Processing Systems 35 (2022): 16344-16359. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+<li id="fn1" class="footnote-item"><p>Dao, Tri, et al. “Flashattention: Fast and memory-efficient exact attention with io-awareness.” Advances in Neural Information Processing Systems 35 (2022): 16344-16359. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn2" class="footnote-item"><p>To reproduce the <code>flash_attn_varlen_func</code> forward speed benchmark, using <code>torch 2.4.0</code> and <code>flash-attn 2.6.3</code>, run in an IPython Notebook:</p>
 <pre class="language-python" tabindex="0"><code class="language-python">SEQLEN <span class="token operator">=</span> <span class="token number">512</span>
@@ -794,10 +807,10 @@ For this reason, this benchmark periodically assign 1 tokens more or less from a
 
     <span class="token keyword">def</span> <span class="token function">__len__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
         <span class="token keyword">return</span> self<span class="token punctuation">.</span>_len</code></pre>
-<p>Note that if you're using PyTorch-Lightning, note that <code>Trainer</code> would automatically instate its own sampler if using the <code>ddp</code> strategy, hence overriding this self-defined sampler.
+<p>Note that if you’re using PyTorch-Lightning, note that <code>Trainer</code> would automatically instate its own sampler if using the <code>ddp</code> strategy, hence overriding this self-defined sampler.
 To prevent this behavior, make sure to use <code>use_distributed_sampler=False</code> when calling <code>Trainer</code>. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn4" class="footnote-item"><p>Cui, Haotian, et al. &quot;scGPT: toward building a foundation model for single-cell multi-omics using generative AI.&quot; Nature Methods (2024): 1-11. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+<li id="fn4" class="footnote-item"><p>Cui, Haotian, et al. “scGPT: toward building a foundation model for single-cell multi-omics using generative AI.” Nature Methods (2024): 1-11. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
@@ -809,6 +822,7 @@ To prevent this behavior, make sure to use <code>use_distributed_sampler=False</
 
 		<footer></footer>
 
+	
 		<!-- Current page: /blog/flashattnvarlen/ -->
 	</body>
 </html>
