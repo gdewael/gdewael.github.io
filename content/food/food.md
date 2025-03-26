@@ -62,6 +62,17 @@ Click on the pictures for a short description
 ![Beet tartare with roasted celeriac root cubes, served with lettuce and tomatoes (04/03/2025)](./41.webp)
 ![Sweet and sour noodle stir fry with bell pepper, tofu, broccoli and red cabbage (05/03/2025)](./42.webp)
 ![Goat cheese cream chicken thighs served on top of spinach potato mash (06/03/2025)](./43.webp)
+![Nachos with cheese sauce, refried beans, pico de gallo, black beans, corn and guacamole (07/03/2025)](./44.webp)
+![Tempura oyster mushroom in gochujang sauce, on top of steamed edamame beans and white rice. Served with miso mayo (08/03/2025)](./45.webp)
+![Pasta in romesco sauce bake, with almonds and cherry tomatoes (10/03/2025)](./46.webp)
+![Wrap with halloumi, cherry tomatoes, cucumber, red cabbage and corn, sauced with a garlic yogurt mayo (11/03/2025)](./47.webp)
+![Leftover vegetable japanese curry with parsnips, potatoes, broccoli, carrots, red cabbage and spelt (12/03/2025)](./48.webp)
+![Soba noodle leek and TVP soup with braised miso leeks and soft boiled egg (14/03/2025)](./49.webp)
+![Syrniki for breakfast (15/03/2025)](./50.webp)
+![Pumpkin mac and cheese with pine nuts (18/03/2025)](./51.webp)
+![Broccoli and onion tortilla, with a kohlrabi, carrots and red cabbage slaw (19/03/2025)](./52.webp)
+![Fish wraps with avocado crema, cherry tomatoes, onions, corn, and slaw (20/03/2025)](./53.webp)
+![Thai-style dry red curry (phat phrik khing) with smoked tofu, long beans, and soy sprouts. Served with rice and green onions (23/03/2025)](./54.webp)
 {% endgallery %}
 
 <button id="revertButton">Display chronologically</button>
