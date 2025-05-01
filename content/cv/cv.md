@@ -33,6 +33,7 @@ Additional courses:
 
 - **Preprints**:
     - **De Waele, Gaetan**, Gerben Menschaert, and Willem Waegeman. ["A systematic assessment of single-cell language model configurations."](https://www.biorxiv.org/content/10.1101/2025.04.02.646825v1) bioRxiv (2025): 2025-04.
+    - Vergauwe, Fauve, **Gaetan De Waele**, Andrea Sass, Callum Highmore, Niall Hanrahan, Yoshiki Cook, Mads Lichtenberg et al. ["Harnessing machine learning to predict antibiotic susceptibility in Pseudomonas aeruginosa biofilms." ](https://www.biorxiv.org/content/10.1101/2025.04.24.650389v1) bioRxiv (2025): 2025-04.
 
 <p>
 

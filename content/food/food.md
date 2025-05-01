@@ -83,6 +83,19 @@ Click on the pictures for a short description
 ![Lemon cream pasta with breaded chicken, topped with lemon balm and parmigiano (04/04/2025)](./62.webp)
 ![Fishstick salad with avocado, pico de gallo, coleslaw, pita chips, and avocado crema (07/04/2025)](./63.webp)
 ![Sweet potato mash with chicken breast, in a sauce that is a crossover between bearnaise and mushroom cream (08/04/2025)](./64.webp)
+![Flammekueche with caramelized leek, cheese, and chives (10/04/2025)](./65.webp)
+![Baked pinach ricotta stuffed shells in tomato sauce (11/04/2025)](./66.webp)
+![Gnocchi with honey chili crisp seitan and wilted chard (14/04/2025)](./67.webp)
+![Seitan in sweet gochujang sauce and wilted chard and sesame leek served over white rice (15/04/2025)](./68.webp)
+![Seared broccoli over beet hummus, with pistachio pesto (16/04/2025)](./69.webp)
+![Seared chicken breast in a cabbage and dill cream sauce with roasted celeriac root cubes (17/04/2025)](./70.webp)
+![Baked cherry tomato and boursin pasta with borlotti beans and fresh mozzarella (19/04/2025)](./71.webp)
+![Pearl couscous with lots of spinach, cherry tomatoes, served with fresh mozarella and parmigiano (22/04/2025)](./72.webp)
+![Beet hummus pasta with blanched sugar snaps, served with lemon zest and pecorino romano (24/04/2025)](./73.webp)
+![Courgette stuffed with mushroom, cabbage and cream filling, topped with blue cheese (25/04/2025)](./74.webp)
+![Cashew noodle salad with bell pepper, mint, carrot, and cabbage (26/04/2025)](./75.webp)
+![Harissa chicken thighs with sorrel, roast chickpeas, and asparagus, served with iberico (28/04/2025)](./76.webp)
+![Pita with halloumi and fishsticks, served with fennel, carrot and cabbage slaw, tartar sauce (30/04/2025)](./77.webp)
 {% endgallery %}
 
 <button id="revertButton">Display chronologically</button>
