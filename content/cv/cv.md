@@ -52,7 +52,7 @@ Additional courses:
     - [cpg-transformer](https://github.com/gdewael/cpg-transformer), code supporting my work on methylation (CpG) data imputation.
     - [h5torch](https://github.com/gdewael/h5torch), a simple utility that allows PyTorch Dataloading from HDF5 files.
     - [bio-attention](https://github.com/gdewael/bio-attention), definitions for transformers adapted to the work in my PhD.
-    - [maldi-nn](https://github.com/gdewael/maldi-nn), code supporting my work on MALDI-TOF mass spectromety.
+    - [maldi-nn](https://github.com/gdewael/maldi-nn), code supporting my work on MALDI-TOF mass spectrometry.
     - [bento-sc](https://github.com/gdewael/bento-sc), code supporting my work on single-cell transcriptomic language models.
     - [cut2min-bucket](https://github.com/gdewael/cut2min-bucket), a small dataloading utility to use flash-attn with variable length inputs.
 
