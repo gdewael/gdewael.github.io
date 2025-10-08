@@ -8,10 +8,11 @@ eleventyNavigation:
 
 ----
 
-## Education
+## Education and work
 
-- *2020 - Current* : **PhD in Bioscience Engineering**, Ghent University
-    - Research topic: Novel transformer networks for biological data modalities
+- *2025 - Current* : **Postdoc**, University of Antwerp
+- *2020 - 2025* : **PhD in Bioscience Engineering**, Ghent University
+    - Dissertation title: Self-supervised Transformers for Biological Data Modalities
 - *2018 - 2020* : **MSc in Bioinformatics (Bioscience Engineering)**, Ghent University
 - *2015 - 2018* : **BSc in Bioscience Engineering**: Cell and Gene Biotechnology, Ghent University
 - *2009 - 2015* : **Science-Mathematics**, Leiepoort Campus Sint-Hendrik Deinze
@@ -62,9 +63,9 @@ Additional courses:
 
 ## Teaching
 
-- *2020 - Current* : **Teaching assistance** for "Machine learning for the Life Sciences" course
-- *2024 - Current* : **Tutor for Master thesis** "End-to-end de novo metabolomics" by Wout Welvaert
-- *2024 - Current* : **Tutor for Master thesis** "Variational inference for DTI" by Robbe Claeys
+- *2020 - 2025* : **Teaching assistance** for "Machine learning for the Life Sciences" course
+- *2024 - 2025* : **Tutor for Master thesis** "End-to-end de novo metabolomics" by Wout Welvaert
+- *2024 - 2025* : **Tutor for Master thesis** "Variational inference for DTI" by Robbe Claeys
 - *2023 - 2024* : **Tutor for Master thesis** "Novel neural networks for bacterial species prediction from MALDI-TOF data" by Jorge Isaac Cueva Villavicencio
 - *2022 - 2023* : **Tutor for Master thesis** "Two-Branch Neural Networks for Predicting Protein-DNA Interaction" by Natan Tourne
 - *2022 - 2023* : **Tutor for Master thesis** "Designing novel protein sequences using advanced generative models" by Scout Van den Bergh
