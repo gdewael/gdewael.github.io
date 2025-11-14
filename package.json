@@ -38,15 +38,15 @@
 		"@11ty/eleventy-plugin-bundle": "^1.0.4",
 		"@11ty/eleventy-plugin-rss": "^1.2.0",
 		"@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
+		"@fontsource/noto-mono": "^5.0.7",
+		"@fontsource/noto-sans": "^5.0.18",
+		"@fontsource/noto-serif": "^5.0.20",
+		"eleventy-plugin-icons": "^4.4.1",
+		"lucide-static": "^0.303.0",
 		"luxon": "^3.3.0",
 		"markdown-it-anchor": "^8.6.7",
-		"eleventy-plugin-icons" : "^4.4.1",
-		"lucide-static" : "^0.303.0",
-		"@fontsource/noto-sans" : "^5.0.18",
-		"@fontsource/noto-mono" : "^5.0.7",
-		"@fontsource/noto-serif" : "^5.0.20",
-		"markdown-it-footnote" : "^4.0.0",
-		"markdown-it-mathjax3" : "^4.3.2",
+		"markdown-it-footnote": "^4.0.0",
+		"markdown-it-mathjax3": "^4.3.2",
 		"simplelightbox": "^2.14.3"
 	}
 }
