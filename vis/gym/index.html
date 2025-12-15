@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Progress Visualizer 🏋️</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .info {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .info a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .info a:hover {
+            text-decoration: underline;
+        }
+
+        .upload-section {
+            margin: 30px 0;
+            padding: 30px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .upload-label:hover {
+            background: #5568d3;
+        }
+
+        .file-name {
+            margin-top: 15px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .controls {
+            display: none;
+            margin: 30px 0;
+            padding: 25px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        select:hover, select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #5568d3;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .radio-option label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        #chart {
+            margin: 30px 0;
+            display: none;
+            width: 100%;
+            min-height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            #chart {
+                margin: 20px -20px;
+                min-height: 350px;
+            }
+        }
+
+        .table-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .table-title {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -10px;
+            padding: 0 10px;
+            position: relative;
+        }
+
+        .table-wrapper::after {
+            content: '← Swipe to see more →';
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            pointer-events: none;
+            opacity: 0;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .table-wrapper::after {
+                display: block;
+            }
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
+        }
+
+        .rm-table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .rm-table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .rm-table th,
+        .rm-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            white-space: nowrap;
+        }
+
+        .rm-table th {
+            font-weight: 600;
+            font-size: 0.85rem;
+            position: sticky;
+            top: 0;
+            background: #667eea;
+            z-index: 10;
+        }
+
+        .rm-table td {
+            font-size: 0.8rem;
+            color: #333;
+        }
+
+        .rm-table tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .rm-table tbody tr:hover {
+            background: #f5f7ff;
+        }
+
+        .error {
+            color: #e74c3c;
+            padding: 15px;
+            background: #ffeaea;
+            border-radius: 6px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .info {
+                font-size: 0.85rem;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .control-group {
+                margin-bottom: 20px;
+            }
+
+            select {
+                font-size: 0.95rem;
+            }
+
+            .upload-section {
+                padding: 20px;
+                margin: 20px 0;
+            }
+
+            .upload-label {
+                padding: 10px 20px;
+                font-size: 0.95rem;
+            }
+
+            .table-section {
+                margin-top: 20px;
+            }
+
+            .table-title {
+                font-size: 1.1rem;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gym Progress Visualizer 🏋️</h1>
+        <div class="subtitle">(Based on export data from Alpha Progression)</div>
+        <div class="info">
+            If you encounter issues/errors with this script, you can open an issue
+            <a href="https://github.com/gdewael/st-alpha-progression/issues" target="_blank">on GitHub</a>
+            (or get in touch with me otherwise).
+        </div>
+
+        <div class="upload-section">
+            <input type="file" id="fileInput" class="file-input" accept=".csv">
+            <label for="fileInput" class="upload-label">Choose Alpha Progression CSV File</label>
+            <div class="file-name" id="fileName"></div>
+        </div>
+
+        <div class="error" id="errorMessage"></div>
+
+        <div class="controls" id="controls">
+            <div class="control-group">
+                <label for="exerciseSelect">Select exercise to plot:</label>
+                <select id="exerciseSelect"></select>
+            </div>
+
+            <div class="control-group">
+                <label for="smoothingSlider">Trendline smoothing slider:</label>
+                <div class="slider-container">
+                    <input type="range" id="smoothingSlider" min="0.05" max="1.0" step="0.05" value="0.50">
+                    <span class="slider-value" id="smoothingValue">0.50</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Select trendline type:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="trendSmoothed" name="trendline" value="smoothed" checked>
+                        <label for="trendSmoothed">Smoothed Average</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="trendMax" name="trendline" value="max">
+                        <label for="trendMax">Follow max</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="chart"></div>
+
+        <div class="table-section" id="tableSection">
+            <div class="table-title">Rep to weight table:</div>
+            <div class="table-wrapper">
+                <table class="rm-table">
+                    <thead>
+                        <tr id="tableHeader"></tr>
+                    </thead>
+                    <tbody>
+                        <tr id="tableData"></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for Brzycki formula
+        const BRZYCKI_10RM = 1.0278 - 0.0278 * 10; // 0.7498
+
+        // RM Calculation Functions (Epley and Brzycki formulas)
+        function epleyRM10(reps, weight) {
+            return weight * (1 + reps / 30) / (1 + 10 / 30);
+        }
+
+        function brzyckiRM10(reps, weight) {
+            return BRZYCKI_10RM * weight / (1.0278 - 0.0278 * reps);
+        }
+
+        function RM10(reps, weight) {
+            // Blend Epley (for low reps) and Brzycki (for high reps)
+            const wOnEpley = Math.min(Math.max(0, reps - 1) / 5, 1);
+            return wOnEpley * epleyRM10(reps, weight) + (1 - wOnEpley) * brzyckiRM10(reps, weight);
+        }
+
+        function RM10ToRM1(rm10) {
+            return rm10 / BRZYCKI_10RM;
+        }
+
+        function RM1ToRMx(rm1, r) {
+            return rm1 * (1.0278 - 0.0278 * r);
+        }
+
+        // LOWESS smoothing implementation
+        function lowess(x, y, frac = 0.5) {
+            const n = x.length;
+            const r = Math.floor(frac * n);
+            const ySmooth = [];
+
+            for (let i = 0; i < n; i++) {
+                const distances = x.map((xi, idx) => ({
+                    dist: Math.abs(xi - x[i]),
+                    idx: idx
+                }));
+                distances.sort((a, b) => a.dist - b.dist);
+
+                const nearest = distances.slice(0, r);
+                const maxDist = nearest[nearest.length - 1].dist;
+
+                let sumWeights = 0;
+                let sumWeightedY = 0;
+
+                for (const item of nearest) {
+                    const weight = maxDist > 0 ? Math.pow(1 - Math.pow(item.dist / maxDist, 3), 3) : 1;
+                    sumWeights += weight;
+                    sumWeightedY += weight * y[item.idx];
+                }
+
+                ySmooth.push(sumWeightedY / sumWeights);
+            }
+
+            return ySmooth;
+        }
+
+        // Calculate expanding max
+        function expandingMax(arr) {
+            const result = [];
+            let currentMax = -Infinity;
+            for (const val of arr) {
+                currentMax = Math.max(currentMax, val);
+                result.push(currentMax);
+            }
+            return result;
+        }
+
+        // Global variables
+        let exercisesData = {};
+        const DEBUG = false; // Set to true for debug console output
+
+        // Simple CSV parser that handles quoted fields
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ';' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        // Parse CSV file
+        function parseCSV(text) {
+            const lines = text.split('\n').map(parseCSVLine);
+
+            if (DEBUG) {
+                console.log('Total lines:', lines.length);
+                console.log('First few lines:', lines.slice(0, 5));
+            }
+
+            // Find workout start rows (contain date pattern)
+            const workoutIndices = [];
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].length >= 2 && lines[i][1].match(/\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}/)) {
+                    workoutIndices.push(i);
+                }
+            }
+            workoutIndices.push(lines.length);
+
+            if (DEBUG) console.log('Found', workoutIndices.length - 1, 'workouts');
+
+            const exercises = {};
+
+            for (let i = 0; i < workoutIndices.length - 1; i++) {
+                const workoutStart = workoutIndices[i];
+                const workoutEnd = workoutIndices[i + 1];
+
+                // Extract date from workout header
+                const dateMatch = lines[workoutStart][1].match(/(\d{4}-\d{2}-\d{2})/);
+                const workoutDate = dateMatch ? dateMatch[1] : '';
+
+                let currentName = '';
+
+                for (let row = workoutStart + 1; row < workoutEnd; row++) {
+                    if (!lines[row][0]) continue;
+
+                    const firstField = lines[row][0];
+
+                    // Exercise name row: "1. Bench Press · Dumbbells · 6 reps"
+                    if (firstField.match(/^\d+\.\s/)) {
+                        const withoutNumber = firstField.replace(/^\d+\.\s*/, '');
+                        const parts = withoutNumber.split('·');
+                        if (parts.length >= 2) {
+                            currentName = parts.slice(0, 2).join('·').trim();
+                        }
+                    }
+                    // Set data row: "1;20;10" (set number, weight, reps)
+                    else if (currentName &&
+                             firstField.match(/^\d+$/) &&
+                             lines[row].length >= 3 &&
+                             !currentName.startsWith('Running on Treadmill')) {
+
+                        const weight = parseFloat(lines[row][1]);
+                        const reps = parseInt(lines[row][2]);
+
+                        if (!isNaN(weight) && !isNaN(reps) && reps > 0) {
+                            if (!exercises[currentName]) exercises[currentName] = [];
+                            exercises[currentName].push({
+                                date: workoutDate,
+                                weight: Math.abs(weight), // Absolute value for assisted exercises
+                                reps: reps
+                            });
+                        }
+                    }
+                }
+            }
+
+            if (DEBUG) console.log('Total exercises:', Object.keys(exercises).length);
+            return exercises;
+        }
+
+        // Helper function
+        const isMobile = () => window.innerWidth < 768;
+
+        // Update chart
+        function updateChart() {
+            const exerciseName = document.getElementById('exerciseSelect').value;
+            const smoothing = parseFloat(document.getElementById('smoothingSlider').value);
+            const trendlineType = document.querySelector('input[name="trendline"]:checked').value;
+
+            if (!exerciseName || !exercisesData[exerciseName]) return;
+
+            const data = exercisesData[exerciseName];
+
+            // Calculate RM10 for each set and sort by date
+            const rm10Values = data.map(d => RM10(d.reps, d.weight));
+            const timestamps = data.map(d => new Date(d.date).getTime());
+
+            // Sort all data by date
+            const sortedIndices = timestamps
+                .map((t, i) => ({ t, i }))
+                .sort((a, b) => a.t - b.t)
+                .map(x => x.i);
+
+            const sortedDates = sortedIndices.map(i => data[i].date);
+            const sortedRM10 = sortedIndices.map(i => rm10Values[i]);
+            const sortedWeights = sortedIndices.map(i => data[i].weight);
+            const sortedReps = sortedIndices.map(i => data[i].reps);
+
+            // Calculate trendline
+            let trendlineY;
+            if (trendlineType === 'smoothed') {
+                const numericX = sortedIndices.map((_, idx) => idx);
+                trendlineY = lowess(numericX, sortedRM10, smoothing);
+            } else {
+                trendlineY = expandingMax(sortedRM10);
+            }
+
+            const estRM10 = trendlineY[trendlineY.length - 1];
+            const estRM1 = RM10ToRM1(estRM10);
+
+            // Create scatter plot
+            const scatterTrace = {
+                x: sortedDates,
+                y: sortedRM10,
+                mode: 'markers',
+                type: 'scatter',
+                name: 'Sets',
+                marker: {
+                    color: 'lime',
+                    size: 8,
+                    opacity: 0.5
+                },
+                customdata: sortedWeights.map((w, i) => [w, sortedReps[i]]),
+                hovertemplate: '<b>Date:</b> %{x}<br>' +
+                              '<b>Weight:</b> %{customdata[0]} kg<br>' +
+                              '<b>Reps:</b> %{customdata[1]}<br>' +
+                              '<b>Estimated 10RM:</b> %{y:.2f} kg<br>' +
+                              '<extra></extra>'
+            };
+
+            const trendlineTrace = {
+                x: sortedDates,
+                y: trendlineY,
+                mode: 'lines',
+                type: 'scatter',
+                name: 'Trendline',
+                line: {
+                    color: 'red',
+                    width: 2
+                },
+                hovertemplate: '<b>Date:</b> %{x}<br>' +
+                              '<b>Trendline:</b> %{y:.2f} kg<br>' +
+                              '<extra></extra>'
+            };
+
+            const mobile = isMobile();
+            const layout = {
+                title: {
+                    text: `Est. 10RM: ${estRM10.toFixed(2)} / Est. 1RM: ${estRM1.toFixed(2)}`,
+                    font: { size: mobile ? 14 : 16 }
+                },
+                xaxis: {
+                    title: { text: 'Date', font: { size: mobile ? 10 : 12 } },
+                    type: 'date',
+                    tickfont: { size: mobile ? 9 : 11 }
+                },
+                yaxis: {
+                    title: { text: 'Estimated 10RM (kg)', font: { size: mobile ? 10 : 12 } },
+                    tickfont: { size: mobile ? 9 : 11 }
+                },
+                hovermode: 'closest',
+                showlegend: true,
+                legend: {
+                    orientation: mobile ? 'h' : 'v',
+                    x: mobile ? 0 : 1,
+                    y: mobile ? -0.2 : 1,
+                    xanchor: 'left',
+                    yanchor: 'top',
+                    font: { size: mobile ? 10 : 12 }
+                },
+                autosize: true,
+                margin: {
+                    l: mobile ? 50 : 60,
+                    r: mobile ? 20 : 40,
+                    t: mobile ? 60 : 80,
+                    b: mobile ? 80 : 60
+                }
+            };
+
+            const config = {
+                responsive: true,
+                displayModeBar: !mobile,
+                displaylogo: false,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                toImageButtonOptions: {
+                    format: 'png',
+                    filename: `${exerciseName}_progress`,
+                    height: 800,
+                    width: 1200,
+                    scale: 2
+                }
+            };
+
+            Plotly.newPlot('chart', [scatterTrace, trendlineTrace], layout, config);
+
+            // Update table
+            updateTable(estRM1);
+
+            // Show chart and table
+            document.getElementById('chart').style.display = 'block';
+            document.getElementById('tableSection').style.display = 'block';
+        }
+
+        // Update rep-to-weight table
+        function updateTable(estRM1) {
+            const header = document.getElementById('tableHeader');
+            const dataRow = document.getElementById('tableData');
+
+            header.innerHTML = '';
+            dataRow.innerHTML = '';
+
+            for (let r = 1; r <= 20; r++) {
+                const th = document.createElement('th');
+                th.textContent = r;
+                header.appendChild(th);
+
+                const td = document.createElement('td');
+                td.textContent = RM1ToRMx(estRM1, r).toFixed(2);
+                dataRow.appendChild(td);
+            }
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('fileName').textContent = `Loaded: ${file.name}`;
+            document.getElementById('errorMessage').style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    exercisesData = parseCSV(e.target.result);
+
+                    if (DEBUG) console.log('Parsed', Object.keys(exercisesData).length, 'exercises');
+
+                    // Sort exercises by frequency (number of sets)
+                    const exerciseFreq = Object.entries(exercisesData)
+                        .map(([name, sets]) => ({ name, count: sets.length }))
+                        .filter(ex => ex.name.trim())
+                        .sort((a, b) => b.count - a.count);
+
+                    if (exerciseFreq.length === 0) {
+                        throw new Error('No exercises found in the CSV file.');
+                    }
+
+                    // Populate dropdown
+                    const select = document.getElementById('exerciseSelect');
+                    select.innerHTML = exerciseFreq.map(ex =>
+                        `<option value="${ex.name}">${ex.name} (Total sets: ${ex.count})</option>`
+                    ).join('');
+
+                    // Show controls and render chart
+                    document.getElementById('controls').style.display = 'block';
+                    updateChart();
+                } catch (error) {
+                    document.getElementById('errorMessage').textContent =
+                        `Error: ${error.message}. Please ensure you've uploaded a valid Alpha Progression CSV file.`;
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('controls').style.display = 'none';
+                    document.getElementById('chart').style.display = 'none';
+                    document.getElementById('tableSection').style.display = 'none';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Event listeners
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        document.getElementById('exerciseSelect').addEventListener('change', updateChart);
+        document.getElementById('smoothingSlider').addEventListener('input', e => {
+            document.getElementById('smoothingValue').textContent = e.target.value;
+            updateChart();
+        });
+        document.querySelectorAll('input[name="trendline"]').forEach(radio =>
+            radio.addEventListener('change', updateChart)
+        );
+
+        // Redraw chart on window resize (debounced)
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (document.getElementById('chart').style.display !== 'none') updateChart();
+            }, 250);
+        });
+    </script>
+</body>
+</html>
