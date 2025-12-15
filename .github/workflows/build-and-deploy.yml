@@ -28,6 +28,10 @@ jobs:
       - name: execute py script # run main.py
         run: python ./map/generate_map.py --mapping_json_path map/mapping.json --img_folder_path map/img/ --gpx_folder_path map/tracks/ --output_file content/vis/treks.html
 
+      - name: Fetch gym visualization from external repo
+        run: |
+          curl -o content/vis/gym.html https://raw.githubusercontent.com/gdewael/st-alpha-progression/main/index.html
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
