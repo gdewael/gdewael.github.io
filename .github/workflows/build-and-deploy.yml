@@ -28,6 +28,16 @@ jobs:
       - name: execute py script # run main.py
         run: python ./map/generate_map.py --mapping_json_path map/mapping.json --img_folder_path map/img/ --gpx_folder_path map/tracks/ --output_file content/vis/treks.html
 
+      - name: Generate food gallery embeddings
+        env:
+          HF_API_TOKEN: ${{ secrets.HF_API_TOKEN }}
+        run: |
+          python content/food/generate_embeddings.py \
+            --food_dir content/food \
+            --mapping_file content/food/mapping.json \
+            --output_file content/food/embeddings.json \
+            --hf_token "$HF_API_TOKEN"
+
       - name: Fetch gym visualization from external repo
         run: |
           curl -o content/vis/gym.html https://raw.githubusercontent.com/gdewael/st-alpha-progression/main/index.html

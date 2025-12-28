@@ -77,6 +77,9 @@ module.exports = function(eleventyConfig) {
 	eleventyConfig.addPassthroughCopy("node_modules/@fontsource/noto-mono/")
 	eleventyConfig.addPassthroughCopy("node_modules/@fontsource/noto-serif/")
 
+	// Copy food gallery embeddings file
+	eleventyConfig.addPassthroughCopy("content/food/embeddings.json");
+
 	// Run Eleventy when these files change:
 	// https://www.11ty.dev/docs/watch-serve/#add-your-own-watch-targets
 

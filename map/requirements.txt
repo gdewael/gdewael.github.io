@@ -3,3 +3,4 @@ pillow
 gpxpy
 pandas
 folium
+huggingface_hub
