@@ -44,6 +44,25 @@ def convert_to_webp(input_folder, output_folder="./cat/pics/", quality=85, max_w
                     img = ImageOps.exif_transpose(img)
                     original_dimensions = img.size
 
+                    # Crop portrait images to 3:4 aspect ratio (less tall)
+                    if img.height > img.width:
+                        # Portrait orientation
+                        target_aspect = 3 / 4  # width / height
+                        current_aspect = img.width / img.height
+
+                        # If image is taller than 4:3, crop the height
+                        if current_aspect < target_aspect:
+                            # Calculate new height for 3:4 aspect ratio
+                            new_height = int(img.width / target_aspect)
+
+                            # Calculate crop box (centered vertically)
+                            top = (img.height - new_height) // 2
+                            bottom = top + new_height
+
+                            # Crop to center
+                            img = img.crop((0, top, img.width, bottom))
+                            print(f"  Cropped portrait: {original_dimensions[0]}x{original_dimensions[1]} → {img.width}x{img.height}")
+
                     # Resize if image is wider than max_width
                     if img.width > max_width:
                         # Calculate new height to maintain aspect ratio
