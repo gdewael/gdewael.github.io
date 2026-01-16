@@ -3,6 +3,10 @@ name: Build & Deploy
 on:
   push:
     branches: ['main']
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
 
 jobs:
   build:
@@ -50,6 +54,9 @@ jobs:
 
       - name: Install packages
         run: npm ci
+
+      - name: Select daily cat image
+        run: node cat/select-daily-cat.js
 
       - name: Run npm build
         run: npm run build-ghpages
