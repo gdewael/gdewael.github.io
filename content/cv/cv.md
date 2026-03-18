@@ -8,20 +8,6 @@ eleventyNavigation:
 
 ----
 
-## Education and work
-
-- *2025 - Current* : **Postdoc**, University of Antwerp
-- *2020 - 2025* : **PhD in Bioscience Engineering**, Ghent University
-    - Dissertation title: Self-supervised Transformers for Biological Data Modalities
-- *2018 - 2020* : **MSc in Bioinformatics (Bioscience Engineering)**, Ghent University
-- *2015 - 2018* : **BSc in Bioscience Engineering**: Cell and Gene Biotechnology, Ghent University
-- *2009 - 2015* : **Science-Mathematics**, Leiepoort Campus Sint-Hendrik Deinze
-
-Additional courses:
-- *2023*: ACDL (Advanced Course on Data Science & Machine Learning), 5-day course, Castiglione della Pescaia, Italy
-- *2023*: Causal Machine Learning, semester course at Ghent University
-- *2022*: Research to Market, 2-day course at Ghent University
-----
 
 ## Academic output
 - **Publications**:
@@ -34,6 +20,9 @@ Additional courses:
 <p>
 
 - **Preprints**:
+    - Rakhshaninejad, Morteza, **Gaetan De Waele**, Mira Jürgens, and Willem Waegeman. ["Reliable Molecular Retrieval from Mass Spectra Using Conformal Prediction"](https://www.biorxiv.org/content/10.64898/2026.03.12.711424v1). bioRxiv (2026): 2026-03.
+    - Jürgens, Mira, **Gaetan De Waele**, Morteza Rakhshaninejad, and Willem Waegeman. ["When should we trust the annotation? Selective prediction for molecular structure retrieval from mass spectra."](https://arxiv.org/abs/2603.10950) arXiv preprint arXiv:2603.10950 (2026).
+    - **De Waele, Gaetan**, Marek Wydmuch, Krzysztof Dembczyński, Wojciech Kotłowski, and Willem Waegeman. ["Small Molecule Retrieval from Tandem Mass Spectrometry: What are we optimizing for?"](https://arxiv.org/abs/2602.16507) arXiv preprint arXiv arXiv:2602.16507 (2026).
     - **De Waele, Gaetan**, Gerben Menschaert, and Willem Waegeman. ["A systematic assessment of single-cell language model configurations."](https://www.biorxiv.org/content/10.1101/2025.04.02.646825v1) bioRxiv (2025): 2025-04.
 
 <p>
@@ -57,7 +46,21 @@ Additional courses:
     - [bento-sc](https://github.com/gdewael/bento-sc), code supporting my work on single-cell transcriptomic language models.
     - [cut2min-bucket](https://github.com/gdewael/cut2min-bucket), a small dataloading utility to use flash-attn with variable length inputs.
 
+----
 
+## Education and work
+
+- *2025 - Current* : **Postdoc**, University of Antwerp
+- *2020 - 2025* : **PhD in Bioscience Engineering**, Ghent University
+    - Dissertation title: Self-supervised Transformers for Biological Data Modalities
+- *2018 - 2020* : **MSc in Bioinformatics (Bioscience Engineering)**, Ghent University
+- *2015 - 2018* : **BSc in Bioscience Engineering**: Cell and Gene Biotechnology, Ghent University
+- *2009 - 2015* : **Science-Mathematics**, Leiepoort Campus Sint-Hendrik Deinze
+
+Additional courses:
+- *2023*: ACDL (Advanced Course on Data Science & Machine Learning), 5-day course, Castiglione della Pescaia, Italy
+- *2023*: Causal Machine Learning, semester course at Ghent University
+- *2022*: Research to Market, 2-day course at Ghent University
 
 ----
 
