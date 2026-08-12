@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "model": "sentence-transformers/all-MiniLM-L6-v2",
-  "generated_at": "2026-08-11T01:39:19.350775+00:00",
+  "generated_at": "2026-08-12T01:50:00.850941+00:00",
   "embeddings": [
     {
       "id": 1,
