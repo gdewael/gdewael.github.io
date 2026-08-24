@@ -11,6 +11,8 @@ eleventyNavigation:
 
 ## Academic output
 - **Publications**:
+    - **De Waele, Gaetan**, Gerben Menschaert, and Willem Waegeman. ["A systematic assessment of single-cell language model configurations."](https://doi.org/10.1093/nargab/lqag095) NAR Genomics and Bioinformatics 8, no. 3 (2026): lqag095.
+    - Rakhshaninejad, Morteza, **Gaetan De Waele**, Mira Jurgens, and Willem Waegeman. ["Reliable Molecular Retrieval from Mass Spectra Using Conformal Prediction."](https://doi.org/10.1021/acs.jcim.6c00727) Journal of Chemical Information and Modeling 66, no. 10 (2026): 5788-5800.
     - Tourne, Natan, **Gaetan De Waele**, Vanessa Vermeirssen, and Willem Waegeman. ["How Negative Sampling Shapes the Performance of Transcription Factor Binding Site Prediction Models."](https://doi.org/10.1093/bioinformatics/btag048) Bioinformatics (2026): btag048.
     - Vergauwe, Fauve, **Gaetan De Waele**, Andrea Sass, Callum Highmore, Niall Hanrahan, Yoshiki Cook, Mads Lichtenberg et al. ["Harnessing machine learning to predict antibiotic susceptibility in Pseudomonas aeruginosa biofilms."](https://doi.org/10.1038/s41522-025-00833-4) npj Biofilms and Microbiomes 11, no. 1 (2025): 205.
     - **De Waele, Gaetan**, Gerben Menschaert, Peter Vandamme, and Willem Waegeman. ["Pre-trained Maldi Transformers improve MALDI-TOF MS-based prediction."](https://doi.org/10.1016/j.compbiomed.2025.109695) Computers in Biology and Medicine (2025).
@@ -20,10 +22,8 @@ eleventyNavigation:
 <p>
 
 - **Preprints**:
-    - Rakhshaninejad, Morteza, **Gaetan De Waele**, Mira Jürgens, and Willem Waegeman. ["Reliable Molecular Retrieval from Mass Spectra Using Conformal Prediction"](https://www.biorxiv.org/content/10.64898/2026.03.12.711424v1). bioRxiv (2026): 2026-03.
     - Jürgens, Mira, **Gaetan De Waele**, Morteza Rakhshaninejad, and Willem Waegeman. ["When should we trust the annotation? Selective prediction for molecular structure retrieval from mass spectra."](https://arxiv.org/abs/2603.10950) arXiv preprint arXiv:2603.10950 (2026).
     - **De Waele, Gaetan**, Marek Wydmuch, Krzysztof Dembczyński, Wojciech Kotłowski, and Willem Waegeman. ["Small Molecule Retrieval from Tandem Mass Spectrometry: What are we optimizing for?"](https://arxiv.org/abs/2602.16507) arXiv preprint arXiv arXiv:2602.16507 (2026).
-    - **De Waele, Gaetan**, Gerben Menschaert, and Willem Waegeman. ["A systematic assessment of single-cell language model configurations."](https://www.biorxiv.org/content/10.1101/2025.04.02.646825v1) bioRxiv (2025): 2025-04.
 
 <p>
 
