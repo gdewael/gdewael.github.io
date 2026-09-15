@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Japan Camper Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --panel: #ffffff;
+    --text: #1c1c1c;
+    --muted: #6b6b6b;
+    --border: #ddd;
+    --accent: #2563eb;
+    color-scheme: light;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { height: 100%; margin: 0; padding: 0; background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--text); }
+  #map { position: absolute; inset: 0; }
+
+  #topbar {
+    position: absolute;
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    left: 8px;
+    right: 8px;
+    z-index: 1000;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    pointer-events: none;
+  }
+  #topbar > * { pointer-events: auto; }
+
+  #search {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    font-size: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  #filterToggle {
+    flex-shrink: 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--accent);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #filterToggle #activeCount {
+    display: inline-block;
+    margin-left: 4px;
+    font-weight: 400;
+    opacity: 0.9;
+  }
+
+  #sheet {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 1001;
+    background: var(--panel);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    max-height: 75vh;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  #sheet.open { transform: translateY(0); }
+
+  #sheetHandle {
+    padding: 10px 0 6px;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+  }
+  #sheetHandle::before {
+    content: "";
+    width: 40px; height: 4px;
+    background: #ccc;
+    border-radius: 2px;
+  }
+
+  #sheetBody { overflow-y: auto; padding: 4px 16px 16px; }
+
+  .sheetHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 6px 0 4px;
+  }
+  .sheetHeader h3 { margin: 0; font-size: 15px; }
+  .linkBtn {
+    background: none; border: none; color: var(--accent);
+    font-size: 13px; padding: 4px; cursor: pointer;
+  }
+
+  .chipRow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .chip {
+    display: flex; align-items: center; gap: 5px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 13px;
+    background: #fafafa;
+    user-select: none;
+    cursor: pointer;
+  }
+  .chip input { display: none; }
+  .chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .chip .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .chip.active .swatch { filter: brightness(1.6); }
+
+  .chip.flagChip.active { background: #b91c1c; border-color: #b91c1c; }
+
+  hr.sep { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+  #regionRow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+
+  .popupBadges { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: white;
+  }
+  .badge.crit { background: #b91c1c; }
+  .badge.warn { background: #b45309; }
+  .badge.rank { background: #15803d; }
+  .badge.rank.bad { background: #6b7280; }
+
+  .popupTitle { font-size: 15px; font-weight: 700; margin: 0 0 2px; }
+  .popupRomaji { font-size: 12px; color: var(--muted); margin: 0 0 6px; }
+  .popupCat { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .popupDesc { font-size: 13px; line-height: 1.4; max-height: 180px; overflow-y: auto; white-space: pre-wrap; }
+  .popupNav {
+    display: inline-block;
+    margin-top: 8px;
+    margin-right: 6px;
+    padding: 6px 12px;
+    background: var(--accent);
+    color: white !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .popupLinks { margin-top: 8px; }
+  .popupLink {
+    display: inline-block;
+    margin: 0 6px 6px 0;
+    padding: 6px 12px;
+    background: #f1f1f1;
+    color: var(--accent) !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .leaflet-popup-content { margin: 10px 12px; width: 260px !important; }
+
+  #countBadge {
+    position: absolute;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    left: 8px;
+    z-index: 999;
+    background: rgba(255,255,255,0.9);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: var(--muted);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+
+  .divmarker {
+    display: flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(45deg);
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+  .divmarker span { transform: rotate(-45deg); font-size: 13px; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17181a;
+      --panel: #232427;
+      --text: #eee;
+      --muted: #9a9a9a;
+      --border: #3a3a3d;
+    }
+    :root:not([data-theme="light"]) .chip { background: #2b2c2f; }
+    :root:not([data-theme="light"]) #countBadge { background: rgba(35,36,39,0.9); }
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="topbar">
+  <input id="search" type="text" placeholder="Search name / romaji…" autocomplete="off">
+  <button id="filterToggle">Filters<span id="activeCount"></span></button>
+</div>
+
+<div id="countBadge"></div>
+
+<div id="sheet">
+  <div id="sheetHandle"></div>
+  <div id="sheetBody">
+    <div class="sheetHeader">
+      <h3>Regions</h3>
+      <button class="linkBtn" id="allRegions">all</button>
+    </div>
+    <div id="regionRow" class="chipRow"></div>
+
+    <div class="sheetHeader">
+      <h3>Categories</h3>
+      <div>
+        <button class="linkBtn" id="allCats">all</button>
+        <button class="linkBtn" id="noneCats">none</button>
+      </div>
+    </div>
+    <div id="catRow" class="chipRow"></div>
+
+    <hr class="sep">
+
+    <div class="sheetHeader">
+      <h3>Hide spots flagged as…</h3>
+      <button class="linkBtn" id="noFlags">clear</button>
+    </div>
+    <div id="flagRow" class="chipRow"></div>
+
+    <hr class="sep">
+
+    <div class="sheetHeader">
+      <h3>Rank</h3>
+      <div>
+        <button class="linkBtn" id="topRankOnly">top only</button>
+        <button class="linkBtn" id="allRanks">all</button>
+      </div>
+    </div>
+    <div id="rankRow" class="chipRow"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="data.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var CAT_STYLE = {
+    "Free parking / camping spot":     { emoji: "🅿️", color: "#2563eb" },
+    "Onsen (hot spring)":              { emoji: "♨️", color: "#dc2626" },
+    "Highly-rated onsen":              { emoji: "♨️", color: "#b45309" },
+    "Michi-no-Eki (roadside station)": { emoji: "🛣️", color: "#16a34a" },
+    "Rated spot (rank in title)":      { emoji: "⭐", color: "#ca8a04" },
+    "Restaurant / food":               { emoji: "🍴", color: "#ea580c" },
+    "Highway SA/PA":                   { emoji: "🛤️", color: "#0891b2" },
+    "Excluded / not recommended":      { emoji: "🚫", color: "#525252" },
+    "Water source":                    { emoji: "💧", color: "#0284c7" },
+    "Paid parking / camping":          { emoji: "💰", color: "#7c3aed" },
+    "Scenic view / night view":        { emoji: "🌄", color: "#0d9488" },
+    "Autumn foliage spot":             { emoji: "🍁", color: "#c2410c" },
+    "Cherry blossom spot":             { emoji: "🌸", color: "#db2777" },
+    "Free parking near campsite":      { emoji: "⛺", color: "#4d7c0f" },
+    "Paid campground":                 { emoji: "⛺", color: "#6d28d9" },
+    "Sunset spot":                     { emoji: "🌇", color: "#d97706" },
+    "Link to adjacent region map":     { emoji: "➡️", color: "#64748b" }
+  };
+  var DEFAULT_STYLE = { emoji: "📍", color: "#64748b" };
+
+  var FLAG_LABELS = {
+    NO_OVERNIGHT: "No overnight parking",
+    BEAR: "Bear activity",
+    WINTER_CLOSED: "Winter closure",
+    GATE_LOCKED: "Gate locked at night",
+    NOISY: "Noisy",
+    TSUNAMI: "Tsunami zone",
+    PERMANENTLY_CLOSED: "Permanently closed",
+    TOO_LOW_FOR_VAN: "Height limit too low",
+    HEIGHT_LIMIT: "Height limit"
+  };
+  var FLAG_CRITICAL = { PERMANENTLY_CLOSED: 1, NO_OVERNIGHT: 1, TOO_LOW_FOR_VAN: 1, BEAR: 1, TSUNAMI: 1 };
+
+  var RANK_LABELS = {
+    "S+": "S+", "S": "S", "A+": "A+", "A": "A", "B": "B", "C": "C",
+    "EXCLUDED": "Excluded", "GOOD": "Good", "OK": "OK", "BAD": "Bad",
+    "NONE": "Unranked"
+  };
+  var RANK_ORDER = ["S+", "S", "A+", "A", "B", "C", "GOOD", "OK", "BAD", "EXCLUDED", "NONE"];
+  var RANK_BAD = { EXCLUDED: 1, BAD: 1, C: 1 };
+  var RANK_TOP = { "S+": 1, "S": 1, "A+": 1, "A": 1, "GOOD": 1 };
+
+  var REGION_LABELS = {
+    touhoku: "Tohoku",
+    kantou: "Kanto",
+    "shin-etsu": "Shin-etsu",
+    kansai: "Kansai",
+    tyugokusikoku: "Chugoku/Shikoku"
+  };
+
+  var features = SPOTS_GEOJSON.features;
+
+  var allCats = {}, allFlags = {}, allRegions = {}, allRanks = {};
+  features.forEach(function (f) {
+    var p = f.properties;
+    p._rank = p.rank || "NONE";
+    allCats[p.category] = true;
+    allRegions[p.region] = true;
+    allRanks[p._rank] = true;
+    (p.flags || []).forEach(function (fl) { allFlags[fl] = true; });
+  });
+
+  var state = {
+    cats: new Set(Object.keys(allCats)),
+    regions: new Set(Object.keys(allRegions)),
+    hideFlags: new Set(),
+    ranks: new Set(Object.keys(allRanks)),
+    query: ""
+  };
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem("campermap_filters_v1");
+      if (!raw) return;
+      var s = JSON.parse(raw);
+      if (s.cats) state.cats = new Set(s.cats);
+      if (s.regions) state.regions = new Set(s.regions);
+      if (s.hideFlags) state.hideFlags = new Set(s.hideFlags);
+      if (s.ranks) state.ranks = new Set(s.ranks);
+    } catch (e) {}
+  }
+  function saveState() {
+    try {
+      localStorage.setItem("campermap_filters_v1", JSON.stringify({
+        cats: Array.from(state.cats),
+        regions: Array.from(state.regions),
+        hideFlags: Array.from(state.hideFlags),
+        ranks: Array.from(state.ranks)
+      }));
+    } catch (e) {}
+  }
+  loadState();
+
+  var map = L.map("map", { zoomControl: false, attributionControl: true })
+    .setView([36.2, 138.0], 6);
+  L.control.zoom({ position: "bottomright" }).addTo(map);
+  L.tileLayer("https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}{r}.png?key=aw730scB0IAHMyVmYduc", {
+    maxZoom: 20,
+    tileSize: 512,
+    zoomOffset: -1,
+    attribution: "&copy; OpenStreetMap contributors &copy; MapTiler"
+  }).addTo(map);
+
+  var cluster = L.markerClusterGroup({
+    chunkedLoading: true,
+    maxClusterRadius: 50,
+    disableClusteringAtZoom: 15
+  });
+
+  function iconFor(cat) {
+    var s = CAT_STYLE[cat] || DEFAULT_STYLE;
+    return L.divIcon({
+      className: "",
+      html: '<div class="divmarker" style="background:' + s.color + '"><span>' + s.emoji + "</span></div>",
+      iconSize: [26, 26],
+      iconAnchor: [13, 24],
+      popupAnchor: [0, -22]
+    });
+  }
+
+  function escapeHtml(s) {
+    return (s || "").replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function popupHtml(p) {
+    var badges = "";
+    if (p.rank) {
+      var rankCls = "rank" + (RANK_BAD[p.rank] ? " bad" : "");
+      badges += '<span class="badge ' + rankCls + '">' + (RANK_LABELS[p.rank] || p.rank) + "</span>";
+    }
+    badges += (p.flags || []).map(function (fl) {
+      var cls = FLAG_CRITICAL[fl] ? "crit" : "warn";
+      return '<span class="badge ' + cls + '">' + (FLAG_LABELS[fl] || fl) + "</span>";
+    }).join("");
+    var romaji = p.romaji ? '<div class="popupRomaji">' + escapeHtml(p.romaji) + "</div>" : "";
+    var extraLinks = (p.links || []).map(function (l) {
+      return '<a class="popupLink" href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' +
+        escapeHtml(l.label) + " ↗</a>";
+    }).join("");
+    return (
+      '<div class="popupBadges">' + badges + "</div>" +
+      '<div class="popupTitle">' + escapeHtml(p.title_ja) + "</div>" +
+      romaji +
+      '<div class="popupCat">' + escapeHtml(p.category) + " · " + REGION_LABELS[p.region] + "</div>" +
+      '<div class="popupDesc">' + escapeHtml(p.desc_en || p.desc_ja) + "</div>" +
+      '<div class="popupLinks">' +
+      '<a class="popupNav" href="' + p.gmaps + '" target="_blank" rel="noopener">Navigate ↗</a>' +
+      extraLinks +
+      "</div>"
+    );
+  }
+
+  var markers = features.map(function (f) {
+    var p = f.properties;
+    var latlng = [f.geometry.coordinates[1], f.geometry.coordinates[0]];
+    var m = L.marker(latlng, { icon: iconFor(p.category) });
+    m.bindPopup(popupHtml(p), { maxWidth: 280 });
+    m._props = p;
+    m._searchBlob = (p.title_ja + " " + (p.romaji || "")).toLowerCase();
+    return m;
+  });
+
+  function passesFilters(m) {
+    var p = m._props;
+    if (!state.cats.has(p.category)) return false;
+    if (!state.regions.has(p.region)) return false;
+    if (!state.ranks.has(p._rank)) return false;
+    for (var i = 0; i < (p.flags || []).length; i++) {
+      if (state.hideFlags.has(p.flags[i])) return false;
+    }
+    if (state.query && m._searchBlob.indexOf(state.query) === -1) return false;
+    return true;
+  }
+
+  function render() {
+    cluster.clearLayers();
+    var visible = markers.filter(passesFilters);
+    cluster.addLayers(visible);
+    document.getElementById("countBadge").textContent = visible.length + " / " + markers.length + " spots shown";
+
+    var activeFilters = 0;
+    if (state.cats.size !== Object.keys(allCats).length) activeFilters++;
+    if (state.regions.size !== Object.keys(allRegions).length) activeFilters++;
+    if (state.hideFlags.size > 0) activeFilters++;
+    if (state.ranks.size !== Object.keys(allRanks).length) activeFilters++;
+    document.getElementById("activeCount").textContent = activeFilters ? " (" + activeFilters + ")" : "";
+  }
+
+  map.addLayer(cluster);
+
+  // --- Build filter UI ---
+  function chip(container, key, label, extra, isActive, onToggle, cls) {
+    var el = document.createElement("label");
+    el.className = "chip" + (cls ? " " + cls : "") + (isActive ? " active" : "");
+    el.innerHTML = (extra || "") + "<span>" + escapeHtml(label) + "</span>";
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = isActive;
+    cb.addEventListener("change", function () {
+      onToggle(cb.checked);
+      el.classList.toggle("active", cb.checked);
+      saveState();
+      render();
+    });
+    el.prepend(cb);
+    container.appendChild(el);
+  }
+
+  var catRow = document.getElementById("catRow");
+  Object.keys(allCats).sort(function(a,b){
+    return features.filter(f=>f.properties.category===b).length - features.filter(f=>f.properties.category===a).length;
+  }).forEach(function (cat) {
+    var s = CAT_STYLE[cat] || DEFAULT_STYLE;
+    var swatch = '<span class="swatch" style="background:' + s.color + '"></span>';
+    chip(catRow, cat, cat + " " + s.emoji, swatch, state.cats.has(cat), function (on) {
+      if (on) state.cats.add(cat); else state.cats.delete(cat);
+    });
+  });
+
+  var regionRow = document.getElementById("regionRow");
+  Object.keys(allRegions).forEach(function (r) {
+    chip(regionRow, r, REGION_LABELS[r] || r, "", state.regions.has(r), function (on) {
+      if (on) state.regions.add(r); else state.regions.delete(r);
+    });
+  });
+
+  var flagRow = document.getElementById("flagRow");
+  Object.keys(allFlags).sort().forEach(function (fl) {
+    chip(flagRow, fl, FLAG_LABELS[fl] || fl, "", state.hideFlags.has(fl), function (on) {
+      if (on) state.hideFlags.add(fl); else state.hideFlags.delete(fl);
+    }, "flagChip");
+  });
+
+  var rankRow = document.getElementById("rankRow");
+  RANK_ORDER.filter(function (r) { return allRanks[r]; }).forEach(function (r) {
+    chip(rankRow, r, RANK_LABELS[r] || r, "", state.ranks.has(r), function (on) {
+      if (on) state.ranks.add(r); else state.ranks.delete(r);
+    });
+  });
+
+  document.getElementById("allCats").onclick = function () {
+    state.cats = new Set(Object.keys(allCats));
+    refreshChips(); saveState(); render();
+  };
+  document.getElementById("noneCats").onclick = function () {
+    state.cats = new Set();
+    refreshChips(); saveState(); render();
+  };
+  document.getElementById("allRegions").onclick = function () {
+    state.regions = new Set(Object.keys(allRegions));
+    refreshChips(); saveState(); render();
+  };
+  document.getElementById("noFlags").onclick = function () {
+    state.hideFlags = new Set();
+    refreshChips(); saveState(); render();
+  };
+  document.getElementById("allRanks").onclick = function () {
+    state.ranks = new Set(Object.keys(allRanks));
+    refreshChips(); saveState(); render();
+  };
+  document.getElementById("topRankOnly").onclick = function () {
+    state.ranks = new Set(Object.keys(allRanks).filter(function (r) { return RANK_TOP[r]; }));
+    refreshChips(); saveState(); render();
+  };
+
+  function refreshChips() {
+    catRow.innerHTML = ""; regionRow.innerHTML = ""; flagRow.innerHTML = ""; rankRow.innerHTML = "";
+    Object.keys(allCats).forEach(function (cat) {
+      var s = CAT_STYLE[cat] || DEFAULT_STYLE;
+      var swatch = '<span class="swatch" style="background:' + s.color + '"></span>';
+      chip(catRow, cat, cat + " " + s.emoji, swatch, state.cats.has(cat), function (on) {
+        if (on) state.cats.add(cat); else state.cats.delete(cat);
+      });
+    });
+    Object.keys(allRegions).forEach(function (r) {
+      chip(regionRow, r, REGION_LABELS[r] || r, "", state.regions.has(r), function (on) {
+        if (on) state.regions.add(r); else state.regions.delete(r);
+      });
+    });
+    Object.keys(allFlags).sort().forEach(function (fl) {
+      chip(flagRow, fl, FLAG_LABELS[fl] || fl, "", state.hideFlags.has(fl), function (on) {
+        if (on) state.hideFlags.add(fl); else state.hideFlags.delete(fl);
+      }, "flagChip");
+    });
+    RANK_ORDER.filter(function (r) { return allRanks[r]; }).forEach(function (r) {
+      chip(rankRow, r, RANK_LABELS[r] || r, "", state.ranks.has(r), function (on) {
+        if (on) state.ranks.add(r); else state.ranks.delete(r);
+      });
+    });
+  }
+
+  // --- Sheet toggle ---
+  var sheet = document.getElementById("sheet");
+  var filterToggle = document.getElementById("filterToggle");
+  var sheetHandle = document.getElementById("sheetHandle");
+  function toggleSheet() { sheet.classList.toggle("open"); }
+  filterToggle.addEventListener("click", toggleSheet);
+  sheetHandle.addEventListener("click", toggleSheet);
+
+  // --- Search ---
+  var searchInput = document.getElementById("search");
+  var searchTimer = null;
+  searchInput.addEventListener("input", function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () {
+      state.query = searchInput.value.trim().toLowerCase();
+      render();
+    }, 150);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

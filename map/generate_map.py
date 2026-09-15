@@ -53,7 +53,12 @@ def main():
 
     args = parser.parse_args()
 
-    m = folium.Map(location = [51.057056, 3.702139], zoom_start = 4, tiles="CartoDB dark_matter")
+    m = folium.Map(
+        location=[51.057056, 3.702139],
+        zoom_start=4,
+        tiles="https://api.maptiler.com/maps/darkmatter/{z}/{x}/{y}.png?key=aw730scB0IAHMyVmYduc",
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a>',
+    )
 
     Fullscreen(
         position="topright",
