@@ -1,6 +1,6 @@
 {
   "version": "1.0",
   "model": "sentence-transformers/all-MiniLM-L6-v2",
-  "generated_at": "2026-11-19T05:59:57.392133+00:00",
+  "generated_at": "2026-11-20T05:49:22.230761+00:00",
   "embeddings": []
 }
